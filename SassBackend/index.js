@@ -2,6 +2,11 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require("cors");
 const ConnectDB = require('./config/db');
+const  authroutes = require( './routes/auth');
+const  libraryroutes = require( './routes/libraryRoutes');
+const  gymroutes = require('./routes/gymRoutes');
+const  flatroutes = require('./routes/flatRoutes');
+const  ownerRoutes =require('./routes/ownerRoutes');
 //const routes = require('./routes/auth')
 dotenv.config();
 const app = express();
@@ -12,7 +17,11 @@ app.use(
 );
 app.use(express.json());
 ConnectDB();
-app.use('/api',routes);
+app.use('/api/auth',authroutes);
+app.use('/api/library',libraryroutes);
+app.use('/api/gym',gymroutes);
+app.use('/api/flat',flatroutes);
+app.use('/api/owner',ownerRoutes);
 const PORT = process.env.PORT||3000;
 app.listen(PORT,()=>{
     console.log(`Server running on http://localhost:${PORT}`)
