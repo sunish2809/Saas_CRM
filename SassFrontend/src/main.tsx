@@ -18,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
         authorizationParams={{
           redirect_uri: redirectUri,
         }}
+        cacheLocation='localstorage'
       >
         <App />
       </Auth0Provider>
