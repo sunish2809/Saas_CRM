@@ -6,6 +6,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LibraryDashboard from './pages/dashboards/LibraryDashboard';
 import GymDashboard from './pages/dashboards/GymDashboard';
 import FlatDashboard from './pages/dashboards/FlatDashboard';
+import 'animate.css';
+import GetStarted from './components/GetStarted';
 
 function App() {
   return (
@@ -14,6 +16,7 @@ function App() {
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       
+      <Route path="/get-started" element={<GetStarted/>}/>
       {/* Protected Dashboard Routes */}
       <Route path="/dashboard">
         <Route 

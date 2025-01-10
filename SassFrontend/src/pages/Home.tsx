@@ -1,32 +1,41 @@
-import { useNavigate } from 'react-router-dom';
-import { BUSINESS_OPTIONS } from '../components/business';
+import { useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import Features from '../components/Features';
+import Solutions from '../components/Solutions';
+import Pricing from '../components/Pricing';
+import Testimonials from '../components/Testimonials';
+import Integration from '../components/Integration';
+import Contact from '../components/Contact';
+import Footer from '../components/Footer';
 
-function Home() {
-  const navigate = useNavigate();
+const Home = () => {
+  useEffect(() => {
+    // Add any initialization code here
+    document.title = 'ManagePro - Business Management Solutions';
+  }, []);
 
   return (
-    <div>
-      <h1>Welcome to Our Management System</h1>
-      <p>Choose your business type to get started</p>
-      
-      <div className="business-options">
-        {BUSINESS_OPTIONS.map((business) => (
-          <div key={business.id} className="business-card">
-            <h2>{business.label}</h2>
-            <p>{business.description}</p>
-            <div className="button-group">
-              <button onClick={() => navigate(`/signin?business=${business.id}`)}>
-                Sign In 
-              </button>
-              <button onClick={() => navigate(`/signup?business=${business.id}`)}>
-                Sign Up
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="antialiased text-gray-800 min-h-screen flex flex-col">
+      {/* Skip to main content link for accessibility */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-white focus:text-black">
+        Skip to main content
+      </a>
+
+      {/* <Navbar /> */}
+
+      <main id="main-content" className="flex-1 relative">
+        <Hero />
+        <Features />
+        <Solutions />
+        <Pricing />
+        <Testimonials />
+        <Contact />
+      </main>
+
+      <Footer />
     </div>
   );
-}
+};
 
 export default Home;

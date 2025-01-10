@@ -11,7 +11,7 @@ function SignUp() {
 
   useEffect(() => {
     if (!businessType || !BUSINESS_OPTIONS.find(b => b.id === businessType)) {
-      navigate('/'); // Redirect to home if no valid business type
+      navigate('/get-started'); // Redirect to home if no valid business type
       return;
     }
 
