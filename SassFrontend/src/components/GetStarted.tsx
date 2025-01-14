@@ -136,14 +136,6 @@ const solutions = [
   // Add other solutions...
 ];
 
-// const GetStarted = () => {
-
-//     return (
-//         <div className=" mx-auto px-8 bg-black">
-//           <HoverEffect items={projects} />
-//         </div>
-//       );
-// }
 const GetStarted = () => {
   const navigate = useNavigate();
   return (
@@ -220,3 +212,8 @@ const GetStarted = () => {
 };
 
 export default GetStarted;
+
+
+// ... keep your existing imports and solutions array ...
+
+

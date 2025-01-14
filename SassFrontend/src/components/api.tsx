@@ -1,22 +1,38 @@
 import axios from 'axios';
-import { useAuth0 } from '@auth0/auth0-react';
 
-export const useApi = () => {
-  const { getAccessTokenSilently } = useAuth0();
+const api = axios.create({
+  baseURL: 'http://localhost:3000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  const api = axios.create({
-    baseURL: 'http://localhost:3000/api'
-  });
-
-  api.interceptors.request.use(async (config) => {
-    try {
-      const token = await getAccessTokenSilently();
+// Request interceptor to add JWT token to headers
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } catch (error) {
-      console.error('Error getting token:', error);
     }
     return config;
-  });
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-  return api;
-};
+// Response interceptor to handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Clear local storage and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/get-started';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default api;
