@@ -3,12 +3,12 @@ import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/ProtectedRoute";
-import LibraryDashboard from "./pages/dashboards/Library/LibraryDashboard";
 import GymDashboard from "./pages/dashboards/Gym/GymDashboard";
 import FlatDashboard from "./pages/dashboards/Flat/FlatDashboard";
 import "animate.css";
 import GetStarted from "./components/GetStarted";
 import MemberProfile from "./pages/dashboards/Gym/MemberProfile";
+import LibraryDashboard from "./pages/dashboards/Library/LibraryDashboard";
 
 // function App() {
 //   return (
