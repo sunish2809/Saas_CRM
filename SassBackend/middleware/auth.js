@@ -1,42 +1,56 @@
-const jwt = require("jsonwebtoken");
-const { User } = require("../models/Owner");
+const jwt = require('jsonwebtoken');
+const Owner = require('../models/Owner');
 
 exports.authMiddleware = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
+    try {
+        // Get token from header
+        const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-      return res.status(401).json({ message: "Authentication required" });
+        if (!token) {
+            return res.status(401).json({ message: 'No authentication token, access denied' });
+        }
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        
+        // Find owner by id
+        const owner = await Owner.findById(decoded.userId);
+
+
+        if (!owner) {
+            throw new Error('Owner not found');
+        }
+
+        // Add owner to request
+        req.owner = owner;
+        next();
+
+    } catch (error) {
+        res.status(401).json({ message: 'Token is invalid or expired' });
     }
-
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); /*as JWTPayload*/
-
-    // Find user
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
-
-    // Add user and business type to request object
-    req.user = user;
-    req.businessType = decoded.businessType;
-
-    next();
-  } catch (error) {
-    console.error("Auth middleware error:", error);
-    res.status(401).json({ message: "Invalid token" });
-  }
 };
 
-// Middleware to check business type access
-exports.checkBusinessAccess = (allowedTypes) => {
-  return (req, res, next) => {
-    if (!req.businessType || !allowedTypes.includes(req.businessType)) {
-      return res.status(403).json({
-        message: "You do not have access to this business type",
-      });
-    }
-    next();
-  };
+exports.checkBusinessAccess = (allowedBusinessTypes) => {
+    return (req, res, next) => {
+        try {
+            // Check if owner exists (should be added by authMiddleware)
+            if (!req.owner) {
+                return res.status(401).json({ message: 'Authentication required' });
+            }
+
+            // Check if owner's business type is in allowed types
+
+
+            if (!allowedBusinessTypes.includes(req.owner.businessType)) {
+                return res.status(403).json({ 
+                    message: 'Access denied. Invalid business type' 
+                });
+            }
+
+            next();
+        } catch (error) {
+            res.status(500).json({ message: 'Error checking business access' });
+        }
+    };
 };
