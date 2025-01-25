@@ -9,60 +9,8 @@ import "animate.css";
 import GetStarted from "./components/GetStarted";
 import MemberProfile from "./pages/dashboards/Gym/MemberProfile";
 import LibraryDashboard from "./pages/dashboards/Library/LibraryDashboard";
+import MemberProfileLibrary from "./pages/dashboards/Library/MemberProfileLibrary";
 
-// function App() {
-//   return (
-//     <Routes>
-//       <Route path="/" element={<Home />} />
-//       <Route path="/signin" element={<SignIn />} />
-//       <Route path="/signup" element={<SignUp />} />
-
-//       <Route path="/member/:memberId" element={<MemberProfile />} />
-//       <Route path="/get-started" element={<GetStarted/>}/>
-//       {/* Protected Dashboard Routes */}
-//       <Route path="/dashboard">
-//         <Route
-//           path="library"
-//           element={
-//             <ProtectedRoute>
-//               <LibraryDashboard />
-//             </ProtectedRoute>
-//           }
-//         />
-//         <Route
-//           path="gym"
-//           element={
-//             <ProtectedRoute>
-//               <GymDashboard />
-//             </ProtectedRoute>
-//           }
-//         />
-//         <Route
-//           path="flat"
-//           element={
-//             <ProtectedRoute>
-//               <FlatDashboard />
-//             </ProtectedRoute>
-//           }
-//         />
-//       </Route>
-//     </Routes>
-//   );
-// }
-
-// export default App;
-
-// ... other imports
-
-// import { Routes, Route, Navigate } from 'react-router-dom';
-// import { useAuth0 } from '@auth0/auth0-react';
-// import SignIn from './pages/SignIn';
-// import SignUp from './pages/SignUp';
-// import GetStarted from './pages/GetStarted';
-// import GymDashboard from './pages/dashboards/Gym/GymDashboard';
-// import LibraryDashboard from './pages/dashboards/Library/LibraryDashboard';
-// import FlatDashboard from './pages/dashboards/Flat/FlatDashboard';
-// import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -113,10 +61,10 @@ function App() {
         }
       />
       <Route
-        path="/dashboard/library/member/:memberId"
+        path="/dashboard/library/members/:memberId"
         element={
           <ProtectedRoute requiredBusinessType="library">
-            <MemberProfile />
+            <MemberProfileLibrary/>
           </ProtectedRoute>
         }
       />

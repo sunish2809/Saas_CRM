@@ -47,7 +47,7 @@ function MemberList() {
             },
           }
         );
-        console.log(response.data)
+        
         const apiMembers = response.data.map((member: any) => ({
           id: member.seatNumber,
           name: member.name,
@@ -55,37 +55,40 @@ function MemberList() {
           email: member.email,
           phone: member.phone || "",
           package: member.membershipType,
-          amount: member.paymentHistory.reduce(
-            (sum: number, payment: any) => sum + payment.amount,
-            0
-          ),
+          // amount: member.paymentHistory.reduce(
+          //   (sum: number, payment: any) => sum + payment.amount,
+          //   0
+          // ),
 
-          paymentDate: member.paymentHistory[0]?.paymentDate
+          paymentDate: member.paymentHistory.length > 0
             ? (() => {
-                const parsedDate = new Date(
-                  member.paymentHistory[0].paymentDate
-                );
-                return isValid(parsedDate)
-                  ? format(parsedDate, "dd/MM/yyyy")
-                  : "N/A";
+                const latestPayment = member.paymentHistory
+                  .slice() // Create a shallow copy to avoid mutating the original array
+                  .sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate))[0]; // Sort by paymentDate in descending order and pick the first entry
+                const parsedDate = new Date(latestPayment.paymentDate);
+                return isValid(parsedDate) ? format(parsedDate, "dd/MM/yyyy") : "N/A";
               })()
             : "N/A",
-          // status: "Active", // Modify this based on your logic
-          status: member.paymentHistory[0]?.paymentDate
-            ? (() => {
-                const lastPaymentDate = new Date(
-                  member.paymentHistory[0].paymentDate
-                );
-                const currentDate = new Date();
 
-                // Add 30 days to the last payment date
-                const expiryDate = new Date(lastPaymentDate);
-                expiryDate.setDate(lastPaymentDate.getDate() + 30);
 
-                // Compare current date with expiry date
-                return currentDate > expiryDate ? "Inactive" : "Active";
-              })()
-            : "Not Active", // Default if no payment history
+          status: member.paymentHistory.length > 0
+          ? (() => {
+              const latestPayment = member.paymentHistory
+                .slice() // Create a shallow copy to avoid mutating the original array
+                .sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate))[0]; // Sort by paymentDate in descending order and pick the latest
+
+              const lastPaymentDate = new Date(latestPayment.paymentDate);
+              const currentDate = new Date();
+
+              // Add 30 days to the last payment date
+              const expiryDate = new Date(lastPaymentDate);
+              expiryDate.setDate(lastPaymentDate.getDate() + 30);
+
+              // Compare current date with expiry date
+              return currentDate > expiryDate ? "Inactive" : "Active";
+            })()
+          : "Not Active", // Default if no payment history
+
 
             joinDate: member.createdAt
             ? (() => {
@@ -177,13 +180,10 @@ function MemberList() {
       );
 
       console.log("Delete response:", response.data);
-      // Optionally navigate or show a success message
-      // navigate("/dashboard/library/members"); // Redirect after successful deletion
+
     } catch (error: any) {
       console.error("Error deleting member:", error);
-      // SetDeleteError(
-      //   error.response?.data?.message || "Failed to delete member"
-      // );
+
     }
   };
 
@@ -239,8 +239,8 @@ function MemberList() {
           <option value="all">All Status</option>
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
-          <option value="Pending">Pending</option>
-          <option value="Expired">Expired</option>
+          <option value="Pending">Not Active</option>
+          {/* <option value="Expired">Expired</option> */}
         </select>
       </div>
 
@@ -259,11 +259,11 @@ function MemberList() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Package
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Amount
-              </th>
+              </th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Payment Date
+                Last Payment Date
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -275,7 +275,7 @@ function MemberList() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentMembers.map((member) => (
-              <tr key={member.id} className="hover:bg-gray-50">
+              <tr key={member.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`${member.id}`)}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
@@ -301,9 +301,9 @@ function MemberList() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {member.package}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   ₹{member.amount.toLocaleString()}
-                </td>
+                </td> */}
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {/* {format(new Date(member.paymentDate), "MMM dd, yyyy")} */}
                   {member.paymentDate}
@@ -313,12 +313,6 @@ function MemberList() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-3">
-                    {/* <button
-                      onClick={() => navigate(`/dashboard/library/member/${member.id}`)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      <PencilSquareIcon className="w-5 h-5" />
-                    </button> */}
                     <button
                       onClick={() => {
                         setSelectedMemberId(member.memberNumber);

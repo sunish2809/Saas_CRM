@@ -6,7 +6,8 @@ const {
     deleteLibraryMembers, 
     getLibraryMembers,
     getAllLibraryMembers, 
-    uploadLibraryMembers
+    uploadLibraryMembers,
+    getDeletedMembersStats
 } = require('../controllers/library/libraryController');
 
 const router = express.Router();
@@ -22,7 +23,8 @@ router.post('/add-member', addLibraryMembers);
 router.post('/upload-members', uploadLibraryMembers);
 router.put('/update-member', updateLibraryMembers);
 router.delete('/delete-member/:seatNumber', deleteLibraryMembers);
-router.get('/get-member', getLibraryMembers);
+router.get('/get-member/:seatNumber', getLibraryMembers);
 router.get('/get-all-members', getAllLibraryMembers);
+router.get('/get-deleted-member',getDeletedMembersStats)
 
 module.exports = router;
