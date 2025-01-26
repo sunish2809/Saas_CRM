@@ -17,7 +17,6 @@ router.use(authMiddleware);
 router.use(checkBusinessAccess(['LIBRARY']));
 
 // Member management routes
-console.log("code is running");
 router.post('/add-member', addLibraryMembers);
 // Bulk addition route
 router.post('/upload-members', uploadLibraryMembers);

@@ -1,34 +1,53 @@
+import axios from 'axios';
 import { FC, useState } from 'react';
 
 interface OwnerSettings {
-  libraryName: string;
   ownerName: string;
   email: string;
-  phone: string;
   password: string;
 
 }
 
 const Settings: FC = () => {
   const [settings, setSettings] = useState<OwnerSettings>({
-    libraryName: 'FitLife Library',
-    ownerName: 'John Doe',
-    email: 'john@fitlifelibrary.com',
-    phone: '+1 (555) 123-4567',
+    ownerName: '',
+    email: '',
     password: '',
-    // currentPassword: '',
-    // newPassword: '',
-    // confirmPassword: '',
-    // notifications: {
-    //   emailAlerts: true,
-    //   smsAlerts: false,
-    //   paymentReminders: true
-    // }
   });
 
-  const handleSave = () => {
+  const requestData = {
+    name:settings.ownerName,
+    email:settings.ownerName,
+    password:settings.password
+
+  };
+  
+  const handleSave = async() => {
     // Implement save functionality
-    console.log('Saving settings:', settings);
+    try{
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        "http://localhost:3000/api/owner/update-owner",
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Member updated:", response.data);
+      setSettings({
+        ownerName:"",
+        email:"",
+        password:"",
+      })
+
+    }catch(error){
+      console.error("Error updating member:", error);
+    }
+    
+
   };
 
   return (
@@ -41,20 +60,11 @@ const Settings: FC = () => {
             <p className="text-sm text-gray-500">Manage your Library</p>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6"> 
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Library Name</label>
-                  <input
-                    type="text"
-                    value={settings.libraryName}
-                    onChange={(e) => setSettings({...settings, libraryName: e.target.value})}
-                    className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Owner Name</label>
                   <input
@@ -70,15 +80,6 @@ const Settings: FC = () => {
                     type="email"
                     value={settings.email}
                     onChange={(e) => setSettings({...settings, email: e.target.value})}
-                    className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={settings.phone}
-                    onChange={(e) => setSettings({...settings, phone: e.target.value})}
                     className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>

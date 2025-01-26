@@ -34,7 +34,7 @@ function LibraryDashboard() {
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 ml-64 bg-gray-50 overflow-y-auto">
+      <main className="flex-1 ml-64 bg-[#F0F0D7] overflow-y-auto">
         <Routes>
           <Route path="analytics" element={<Analytics />} />
           <Route path="members" element={<MemberList />} />

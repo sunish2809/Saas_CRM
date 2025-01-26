@@ -22,7 +22,6 @@ const Analytics = () => {
     totalMembers: 0,
     activeMembers: 0,
     totalRevenue: 0,
-    newMembersThisMonth: 0,
     membershipDistribution: {
       basic: 0,
       standard: 0,
@@ -154,41 +153,12 @@ const Analytics = () => {
           ).length,
         };
 
-        const newMembersThisMonth = apiMembers.filter(
-          (member: { paymentDate: string | number | Date }) => {
-            if (!member.paymentDate) return false; // Skip if paymentDate is missing
-
-            // const joinDate = parseDate(member.paymentDate);
-            let joinDate: Date;
-
-            // Handle different types of paymentDate
-            if (typeof member.paymentDate === "string") {
-              joinDate = parse(member.paymentDate, "dd/MM/yyyy", new Date()); // Parse string date
-            } else if (typeof member.paymentDate === "number") {
-              joinDate = new Date(member.paymentDate); // Convert number to Date
-            } else {
-              joinDate = member.paymentDate; // Already a Date
-            }
-
-            if (isNaN(joinDate.getTime())) {
-              console.error("Invalid Date Format:", member.paymentDate);
-              return false;
-            }
-
-            const currentDate = new Date();
-            return (
-              joinDate.getMonth() === currentDate.getMonth() &&
-              joinDate.getFullYear() === currentDate.getFullYear()
-            );
-          }
-        ).length;
 
         // Update state
         setAnalyticsData({
           totalMembers,
           activeMembers,
           totalRevenue,
-          newMembersThisMonth,
           membershipDistribution,
         });
 
@@ -203,9 +173,24 @@ const Analytics = () => {
               chart: {
                 caption: "Total Members",
                 theme: "fusion",
+                paletteColors: "#727D73", // Bar color
+                bgColor: "#D0DDD0", // Background color
+                canvasBgColor: "#D0DDD0", // Canvas background color
+                baseFontColor: "#727D73", // Label color
+                showAlternateHGridColor: 0, // Disable alternate grid color
+                divLineColor: "#727D73", // Horizontal grid line color
+                divLineThickness: "1", // Horizontal line thickness
+                divLineDashed: "0", // Solid line (not dashed)
+                yAxisNameFontColor: "#727D73", // Y-axis label color
+                xAxisNameFontColor: "#727D73", // X-axis label color
+                captionFontColor: "#727D73", // Caption color
+                toolTipBgColor: "#D0DDD0", // Tooltip background color
+                toolTipBorderColor: "#727D73", // Tooltip border color
+                toolTipColor: "#727D73", // Tooltip text color
               },
               data: [{ label: "Members", value: totalMembers }],
             },
+            
           },
           revenue: {
             type: "column2d",
@@ -216,10 +201,39 @@ const Analytics = () => {
               chart: {
                 caption: "Total Revenue",
                 theme: "fusion",
+                paletteColors: "#727D73", // Bar color
+                bgColor: "#D0DDD0", // Default background color
+                canvasBgColor: "#FFFFFF", // Canvas background color
+                baseFontColor: "#727D73", // Label color
+                showAlternateHGridColor: 0, // Disable alternate grid color
+                divLineColor: "#727D73", // Horizontal grid line color
+                divLineThickness: "1", // Horizontal line thickness
+                divLineDashed: "0", // Solid line
+                yAxisNameFontColor: "#727D73", // Y-axis label color
+                xAxisNameFontColor: "#727D73", // X-axis label color
+                captionFontColor: "#727D73", // Caption color
               },
               data: [{ label: "Revenue", value: totalRevenue }],
             },
           },
+          // membershipDistribution: {
+          //   type: "pie3d",
+          //   width: "100%",
+          //   height: "400",
+          //   dataFormat: "json",
+          //   dataSource: {
+          //     chart: {
+          //       caption: "Membership Distribution",
+          //       theme: "fusion",
+          //     },
+          //     data: [
+          //       { label: "Basic", value: membershipDistribution.basic },
+          //       { label: "Standard", value: membershipDistribution.standard },
+          //       { label: "Premium", value: membershipDistribution.premium },
+          //       { label: "Annual", value: membershipDistribution.annual },
+          //     ],
+          //   },
+          // },
           membershipDistribution: {
             type: "pie3d",
             width: "100%",
@@ -229,6 +243,16 @@ const Analytics = () => {
               chart: {
                 caption: "Membership Distribution",
                 theme: "fusion",
+                paletteColors: "#727D73,#BED1CF,#EEEEEE,#FFF2E1", // Custom colors for slices
+                bgColor: "#D0DDD0", // Background color for the chart
+                canvasBgColor: "#FFFFFF", // Background color for the canvas area
+                showBorder: 0, // Remove border around the chart
+                use3DLighting: 1, // Enable 3D lighting effect
+                showPercentValues: 1, // Display percentage values on slices
+                decimals: 1, // Number formatting for percentage
+                baseFontColor: "#727D73", // Font color for labels
+                baseFontSize: "12", // Font size for labels
+                captionFontColor: "#727D73", // Caption font color
               },
               data: [
                 { label: "Basic", value: membershipDistribution.basic },
@@ -238,19 +262,7 @@ const Analytics = () => {
               ],
             },
           },
-          newMembers: {
-            type: "column2d",
-            width: "100%",
-            height: "400",
-            dataFormat: "json",
-            dataSource: {
-              chart: {
-                caption: "New Members This Month",
-                theme: "fusion",
-              },
-              data: [{ label: "New Members", value: newMembersThisMonth }],
-            },
-          },
+          
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -304,8 +316,7 @@ const Analytics = () => {
               deletedStats[stat._id.month - 1] = stat.count; // Use month - 1 for 0-based index
             });
 
-
-          SetAddDeleteChart((prevConfigs:any) =>({
+          SetAddDeleteChart((prevConfigs: any) => ({
             addDeleteTrends: {
               type: "msline",
               width: "100%",
@@ -317,6 +328,20 @@ const Analytics = () => {
                   xAxisName: "Month",
                   yAxisName: "Count",
                   theme: "fusion",
+                  bgColor: "#D0DDD0", // Overall chart background color
+                  canvasBgColor: "#D0DDD0", // Canvas background color (on which the graph is drawn)
+                  canvasBgAlpha: "100", // Make sure canvas background is fully opaque
+                  baseFontColor: "#727D73", // Font color
+                  showAlternateHGridColor: 0, // Disable alternate grid colors
+                  divLineColor: "#727D73", // Grid line color
+                  divLineThickness: "1", // Line thickness
+                  divLineDashed: "0", // Solid lines
+                  paletteColors: "#727D73, #3D3D3D", // Custom colors for datasets
+                  usePlotGradientColor: 0, // Disable gradients on the plot
+                  showCanvasBorder: 0, // Remove the border of the canvas
+                  yAxisNameFontColor: "#727D73", // Y-axis label color
+                  xAxisNameFontColor: "#727D73", // X-axis label color
+                  captionFontColor: "#727D73", // Caption color
                 },
                 categories: [
                   {
@@ -338,17 +363,26 @@ const Analytics = () => {
                 ],
                 dataset: [
                   {
-                    seriesname: "New/Renewd Members",
+                    seriesname: "New/Renewed Members",
+                    lineColor: "#727D73",
+                    anchorBgColor: "#727D73",
                     data: newStats.map((stat) => ({ value: stat.count })),
                   },
                   {
                     seriesname: "Deleted Members",
+                    lineColor: "#3D3D3D",
+                    anchorBgColor: "#3D3D3D",
                     data: deletedStats.map((count) => ({ value: count })),
                   },
                 ],
               },
             },
           }));
+          
+          
+          
+          
+          
 
 
         }catch(error:any){
@@ -418,6 +452,17 @@ const Analytics = () => {
                 xAxisName: "Month",
                 yAxisName: "Total Payments",
                 theme: "fusion",
+                paletteColors: "#727D73", // Bar color
+                bgColor: "#D0DDD0", // Default background color
+                canvasBgColor: "#FFFFFF", // Canvas background color
+                baseFontColor: "#727D73", // Label color
+                showAlternateHGridColor: 0, // Disable alternate grid color
+                divLineColor: "#727D73", // Horizontal grid line color
+                divLineThickness: "1", // Horizontal line thickness
+                divLineDashed: "0", // Solid line
+                yAxisNameFontColor: "#727D73", // Y-axis label color
+                xAxisNameFontColor: "#727D73", // X-axis label color
+                captionFontColor: "#727D73", // Caption color
               },
               data: monthlyData,
             },
@@ -431,86 +476,75 @@ const Analytics = () => {
     calculateMonthlyTrends();
   }, [selectedYear]);
 
-  // useEffect(() => {
-  //   const calculateDeleteStats = async () => {
-  //     try {
-  //       const token = localStorage.getItem("token"); // Retrieve token from local storage
-  //       const response = await axios.get(
-  //         "http://localhost:3000/api/library/get-deleted-member",
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`, // Add token to headers
-  //           },
-  //         }
-  //       );
-  //       SetDeletedMemberStat(response.data);
-  //     } catch (error) {
-  //       console.log("Error fecting data:", error);
-  //     }
-  //   };
-  //   calculateDeleteStats();
-  // }, [deleteAddSelectedYear]);
-
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+    <div className="p-8 bg-gray-100 min-h-screen bg-[#F0F0D7]">
+      <h2 className="text-3xl font-bold text-center mb-8 text-[#727D73]">
         Analytics Dashboard
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h3 className="text-xl font-semibold">Total Members</h3>
-          <p className="text-2xl font-bold">{analyticsData.totalMembers}</p>
+        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
+          <h3 className="text-xl text-[#727D73] font-semibold">Total Members</h3>
+          <p className="text-2xl text-[#727D73] font-bold">{analyticsData.totalMembers}</p>
           <ReactFusioncharts {...chartConfigs.totalMembers} />
         </div>
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h3 className="text-xl font-semibold">Total Revenue</h3>
-          <p className="text-2xl font-bold">{analyticsData.totalRevenue}</p>
+        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
+          <h3 className="text-xl text-[#727D73] font-semibold">Total Revenue</h3>
+          <p className="text-2xl text-[#727D73] font-bold">{analyticsData.totalRevenue}</p>
           <ReactFusioncharts {...chartConfigs.revenue} />
         </div>
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h3 className="text-xl font-semibold">Membership Distribution</h3>
+        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
+          <h3 className="text-xl text-[#727D73] font-semibold">Membership Distribution</h3>
           <ReactFusioncharts {...chartConfigs.membershipDistribution} />
         </div>
 
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h3 className="text-xl font-semibold">Membership Distribution</h3>
+        <div className="bg-[#D0DDD0] rounded-lg p-6">
           <div className="mb-4">
-            <label htmlFor="yearFilter" className="mr-2 font-medium">
+            <label htmlFor="yearFilter" className=" text-[#727D73] mr-2 font-medium">
               Select Year:
             </label>
             <select
               id="yearFilter"
-              className="border rounded px-2 py-1 w-40"
+              className="border border-[#727D73] rounded px-2 py-1 w-40 focus:outline-none focus:ring focus:ring-[#727D73] focus:border-[#727D73] bg-[#D0DDD0] text-[#727D73] hover:cursor-pointer"
               value={deleteAddSelectedYear}
               onChange={(e) => setDeleteAddSelectedYear(Number(e.target.value))}
             >
               {availableYears.map((year) => (
-                <option key={year} value={year}>
+                <option
+                  key={year}
+                  value={year}
+                  className="bg-[#D0DDD0] text-[#727D73] hover:bg-[#727D73] hover:text-[#5E6F5E]"
+                >
                   {year}
                 </option>
               ))}
             </select>
+            
           </div>
           <ReactFusioncharts {...addDeleteChart.addDeleteTrends} />
         </div>
-        <div className="bg-white shadow-lg rounded-lg p-6 col-span-full">
-          <h3 className="text-xl font-semibold">Monthly Payment Trends</h3>
+        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6 col-span-full">
           <div className="mb-4">
-            <label htmlFor="yearFilter" className="mr-2 font-medium">
+            <label htmlFor="yearFilter" className=" text-[#727D73] mr-2 font-medium">
               Select Year:
             </label>
             <select
               id="yearFilter"
-              className="border rounded px-2 py-1 w-40"
+              className="border border-[#727D73] rounded px-2 py-1 w-40 focus:outline-none focus:ring focus:ring-[#727D73] focus:border-[#727D73] bg-[#D0DDD0] text-[#727D73] hover:cursor-pointer"
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
             >
               {availableYears.map((year) => (
-                <option key={year} value={year}>
+                <option
+                  key={year}
+                  value={year}
+                  className="bg-[#D0DDD0] text-[#727D73] hover:bg-[#727D73] hover:text-[#5E6F5E]"
+                >
                   {year}
                 </option>
               ))}
             </select>
+
+
           </div>
 
           <ReactFusioncharts {...monthlyTrendChart.monthlyPaymentTrends} />

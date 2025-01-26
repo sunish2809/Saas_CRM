@@ -10,18 +10,6 @@ interface NavItem {
 
 
 const navigationItems: NavItem[] = [
-//   {
-//     id: 'dashboard',
-//     title: 'Dashboard',
-//     path: '/dashboard/library',
-//     icon: (
-//       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-//           d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
-//         />
-//       </svg>
-//     ),
-//   },
   {
     id: 'analytics',
     title: 'Analytics',
@@ -89,8 +77,6 @@ function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      // Add your logout logic here
-      // Example: await authService.logout();
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -100,16 +86,16 @@ function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <nav className="hidden lg:flex flex-col w-64 h-screen bg-white border-r border-gray-200 fixed">
+      <nav className="hidden lg:flex flex-col w-64 h-screen bg-[#D0DDD0] border-r border-gray-200 fixed">
         {/* Logo Section */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center">
-            <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-[#727D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
                 d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" 
               />
             </svg>
-            <h1 className="ml-2 text-xl font-bold text-indigo-600">Library System</h1>
+            <h1 className="ml-2 text-xl font-bold text-[#727D73]">Library System</h1>
           </div>
         </div>
 
@@ -121,8 +107,8 @@ function Sidebar() {
             onClick={() => handleNavigation(item.path)}
             className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
               ${location.pathname === item.path
-                ? 'bg-indigo-600 text-white'
-                : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
+                ? 'bg-[#727D73] text-white'
+                : 'text-gray-600 hover:bg-[#727D73] hover:text-white'
               }`}
           >
             {item.icon}
@@ -141,7 +127,6 @@ function Sidebar() {
             />
             <div className="ml-3">
               <p className="text-sm font-medium text-gray-900">Admin User</p>
-              <p className="text-xs text-gray-500">admin@library.com</p>
             </div>
           </div>
           <button
@@ -215,7 +200,7 @@ function Sidebar() {
                   className="w-10 h-10 rounded-full border-2 border-gray-200"
                 />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">Admin User</p>
+                  <p className="text-sm font-medium text-[#727D73]">Admin User</p>
                   <p className="text-xs text-gray-500">admin@library.com</p>
                 </div>
               </div>
@@ -239,3 +224,4 @@ function Sidebar() {
 }
 
 export default Sidebar;
+
