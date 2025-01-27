@@ -339,6 +339,7 @@ exports.getAllLibraryMembers = async (req, res) => {
         seatNumber: 1,
         membershipType: 1,
         paymentHistory: 1,
+        phone:1,
         _id: 0,
         createdAt: 1,
         updatedAt: 1,

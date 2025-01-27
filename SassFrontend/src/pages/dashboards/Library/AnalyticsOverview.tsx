@@ -426,7 +426,6 @@ const Analytics = () => {
           return acc;
         }, {});
 
-        console.log("month", monthlyPayments);
 
         const monthlyData = Array.from({ length: 12 }, (_, month) => {
           const key = `${selectedYear}-${month}`;
@@ -437,7 +436,6 @@ const Analytics = () => {
             value: monthlyPayments[key] || 0,
           };
         });
-        console.log(monthlyData);
 
         SetMonthlyTrendChart((prevConfigs) => ({
           ...prevConfigs,

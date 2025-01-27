@@ -401,7 +401,7 @@ const AddMember: React.FC = () => {
     reader.readAsBinaryString(file);
   };
   useEffect(() => {
-    console.log("Updated fileData:", fileData);
+    // console.log("Updated fileData:", fileData);
   }, [fileData]);
 
   const handleFileSubmit = async () => {
@@ -458,12 +458,12 @@ const AddMember: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Add New Member</h2>
+      <h2 className="text-2xl font-bold mb-6 text-[#727D73]">Add New Member</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Name
             </label>
             <input
@@ -471,7 +471,7 @@ const AddMember: React.FC = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block bg-[#D0DDD0] w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {/* Add this below each input field */}
             {errors.find((error) => error.field === "name") && (
@@ -482,7 +482,7 @@ const AddMember: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Email
             </label>
             <input
@@ -490,7 +490,7 @@ const AddMember: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "email") && (
               <p className="mt-1 text-sm text-red-600">
@@ -502,7 +502,7 @@ const AddMember: React.FC = () => {
           {/* Add other form fields similarly */}
           {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Phone
             </label>
             <input
@@ -511,7 +511,7 @@ const AddMember: React.FC = () => {
               value={formData.phone}
               onChange={handleChange}
               placeholder="10-digit phone number"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "phone") && (
               <p className="mt-1 text-sm text-red-600">
@@ -522,7 +522,7 @@ const AddMember: React.FC = () => {
 
           {/* Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Address
             </label>
             <textarea
@@ -530,7 +530,7 @@ const AddMember: React.FC = () => {
               value={formData.address}
               onChange={handleChange}
               rows={3}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "address") && (
               <p className="mt-1 text-sm text-red-600">
@@ -541,7 +541,7 @@ const AddMember: React.FC = () => {
 
           {/* Seat Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Seat Number
             </label>
             <input
@@ -549,8 +549,8 @@ const AddMember: React.FC = () => {
               name="seatNumber"
               value={formData.seatNumber}
               onChange={handleChange}
-              placeholder="e.g., L101"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="e.g., 1, 2 ,101.."
+              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "seatNumber") && (
               <p className="mt-1 text-sm text-red-600">
@@ -561,7 +561,7 @@ const AddMember: React.FC = () => {
 
           {/* Aadhar Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Aadhar Number
             </label>
             <input
@@ -570,7 +570,7 @@ const AddMember: React.FC = () => {
               value={formData.aadharNumber}
               onChange={handleChange}
               placeholder="12-digit Aadhar number"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "aadharNumber") && (
               <p className="mt-1 text-sm text-red-600">
@@ -584,7 +584,7 @@ const AddMember: React.FC = () => {
 
           {/* Emergency Contact */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Emergency Contact
             </label>
             <input
@@ -593,7 +593,7 @@ const AddMember: React.FC = () => {
               value={formData.emergencyContact}
               onChange={handleChange}
               placeholder="10-digit phone number"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "emergencyContact") && (
               <p className="mt-1 text-sm text-red-600">
@@ -607,16 +607,16 @@ const AddMember: React.FC = () => {
 
           {/* Gender */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Gender
             </label>
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="mt-1 block w-full h-10 px-2 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 text-[#727D73] bg-[#D0DDD0] block w-full h-10 p-1 rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             >
-              <option value="">Select Gender</option>
+              <option  value="">Select Gender</option>
               {genderTypes.map((type) => (
                 <option key={type} value={type}>
                   {type}
@@ -632,7 +632,7 @@ const AddMember: React.FC = () => {
 
           {/* Date of Birth */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Date of Birth
             </label>
             <input
@@ -640,7 +640,7 @@ const AddMember: React.FC = () => {
               name="dateOfBirth"
               value={formData.dateOfBirth}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 text-[#727D73] bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "dateOfBirth") && (
               <p className="mt-1 text-sm text-red-600">
@@ -651,14 +651,14 @@ const AddMember: React.FC = () => {
 
           {/* Membership Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Membership Type
             </label>
             <select
               name="membershipType"
               value={formData.membershipType}
               onChange={handleChange}
-              className="mt-1 block w-full h-10 px-2 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block text-[#727D73] bg-[#D0DDD0] w-full h-10 p-1 rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             >
               {membershipTypes.map((type) => (
                 <option key={type} value={type}>
@@ -678,7 +678,7 @@ const AddMember: React.FC = () => {
 
           {/* Payment Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Payment Amount
             </label>
             <input
@@ -686,9 +686,9 @@ const AddMember: React.FC = () => {
               name="amount"
               //value={formData.paymentHistory[0].amount}
               onChange={handlePaymentChange}
-              // min="0"
+              min="0"
               // step="1"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
             {errors.find((error) => error.field === "paymentHistory") && (
               <p className="mt-1 text-sm text-red-600">
@@ -702,7 +702,7 @@ const AddMember: React.FC = () => {
 
           {/* Payment Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Payment Date
             </label>
             <input
@@ -710,7 +710,7 @@ const AddMember: React.FC = () => {
               name="paymentDate"
               value={formData.paymentHistory[0].paymentDate.split("T")[0]}
               onChange={handlePaymentChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 text-[#727D73] block bg-[#D0DDD0] w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
           </div>
         </div>
@@ -731,7 +731,7 @@ const AddMember: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] focus:outline-none focus:ring-2 focus:ring-[#727D73] focus:ring-offset-2 disabled:opacity-50"
           >
             {loading ? "Adding..." : "Add Member"}
           </button>
@@ -739,11 +739,11 @@ const AddMember: React.FC = () => {
       </form>
 
       <form onSubmit={handleUpdateSubmit} className="space-y-6">
-        <h2 className="text-2xl font-bold mb-6">Update Member</h2>
+        <h2 className="text-2xl font-bold text-[#727D73] mb-6">Update Member</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Seat Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Seat Number
             </label>
             <input
@@ -751,28 +751,28 @@ const AddMember: React.FC = () => {
               name="seatNumber"
               value={updateFormData.seatNumber}
               onChange={handleUpdateChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full bg-[#D0DDD0] rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
           </div>
 
           {/* Payment Amount - Fix the value binding */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Payment Amount
             </label>
             <input
               type="number"
               name="amount"
-              value={updateFormData.paymentHistory.amount} // Fix this line
+              //value={updateFormData.paymentHistory.amount} // Fix this line
               onChange={handleUpdateChange}
               min="0"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full bg-[#D0DDD0] rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
           </div>
 
           {/* Payment Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Payment Date
             </label>
             <input
@@ -780,20 +780,20 @@ const AddMember: React.FC = () => {
               name="paymentDate"
               value={updateFormData.paymentHistory.paymentDate}
               onChange={handleUpdateChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 text-[#727D73] block bg-[#D0DDD0] w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             />
           </div>
 
           {/* Membership Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-[#727D73]">
               Membership Type
             </label>
             <select
               name="membershipType"
               value={updateFormData.membershipType}
               onChange={handleUpdateChange}
-              className="mt-1 block w-full h-10 px-2 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 text-[#727D73] block w-full bg-[#D0DDD0] h-10 p-1 rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             >
               {membershipTypes.map((type) => (
                 <option key={type} value={type}>
@@ -820,7 +820,7 @@ const AddMember: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] focus:outline-none focus:ring-2 focus:ring-[#727D73] focus:ring-offset-2 disabled:opacity-50"
           >
             {loading ? "Updating..." : "Update Member"}
           </button>
@@ -828,9 +828,9 @@ const AddMember: React.FC = () => {
       </form>
 
       <form className="space-y-6" onSubmit={handleDelete}>
-        <h2 className="text-2xl font-bold mb-6">Delete Member</h2>
+        <h2 className="text-2xl font-bold text-[#727D73] mb-6">Delete Member</h2>
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-[#727D73]">
             Seat Number
           </label>
           <input
@@ -838,7 +838,7 @@ const AddMember: React.FC = () => {
             name="seatNumber"
             value={deleteSeatNumber}
             onChange={handleDeleteChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full bg-[#D0DDD0] rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
           />
         </div>
 
@@ -853,13 +853,13 @@ const AddMember: React.FC = () => {
         </div>
       </form>
 
-      <div className="space-y-6 max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold mb-6">Upload Library Members</h2>
+      <div className="space-y-6  p-2 m-2 h-32 bg-[#D0DDD0] shadow-lg rounded-lg">
+        <h2 className="text-2xl font-bold text-[#727D73] mb-2">Upload Library Members</h2>
 
         <div>
           <label
             htmlFor="file-upload"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-[#727D73]"
           >
             Upload File
           </label>
@@ -868,17 +868,17 @@ const AddMember: React.FC = () => {
             type="file"
             accept=".xlsx, .xls"
             onChange={handleFileUpload}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border-[#727D73] shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
           />
         </div>
 
-        <div className="flex justify-end mt-5">
+        <div className="flex justify-end">
           <button
             onClick={handleFileSubmit}
             disabled={loading}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] focus:outline-none focus:ring-2 focus:ring-[#727D73] focus:ring-offset-2 disabled:opacity-50"
           >
-            {loading ? "Uploading..." : "Upload"}
+            {loading ? "Uploading..." : "Upload File"}
           </button>
         </div>
 

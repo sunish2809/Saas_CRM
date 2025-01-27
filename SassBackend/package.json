@@ -16,6 +16,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.3"
+    "libphonenumber-js": "^1.11.18",
+    "mongoose": "^8.9.3",
+    "twilio": "^5.4.2"
   }
 }
