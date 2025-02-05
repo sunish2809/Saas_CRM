@@ -1,92 +1,86 @@
+import axios from 'axios';
 import { FC, useState } from 'react';
 
 interface OwnerSettings {
-  gymName: string;
   ownerName: string;
   email: string;
-  phone: string;
   password: string;
-//   currentPassword: string;
-//   newPassword: string;
-//   confirmPassword: string;
-//   notifications: {
-//     emailAlerts: boolean;
-//     smsAlerts: boolean;
-//     paymentReminders: boolean;
-//   };
+
 }
 
 const Settings: FC = () => {
   const [settings, setSettings] = useState<OwnerSettings>({
-    gymName: 'FitLife Gym',
-    ownerName: 'John Doe',
-    email: 'john@fitlifegym.com',
-    phone: '+1 (555) 123-4567',
+    ownerName: '',
+    email: '',
     password: '',
-    // currentPassword: '',
-    // newPassword: '',
-    // confirmPassword: '',
-    // notifications: {
-    //   emailAlerts: true,
-    //   smsAlerts: false,
-    //   paymentReminders: true
-    // }
   });
 
-  const handleSave = () => {
+  const requestData = {
+    name:settings.ownerName,
+    email:settings.ownerName,
+    password:settings.password
+
+  };
+  
+  const handleSave = async() => {
     // Implement save functionality
-    console.log('Saving settings:', settings);
+    try{
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        "http://localhost:3000/api/owner/update-owner",
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Member updated:", response.data);
+      setSettings({
+        ownerName:"",
+        email:"",
+        password:"",
+      })
+
+    }catch(error){
+      console.error("Error updating member:", error);
+    }
+    
+
   };
 
   return (
-    <section className="p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <section style={{height:"100vh"}} className="p-6 bg-[#F0F0D7]">
+      <div className="max-w-4xl shadow-lg mx-auto space-y-6">
         {/* Owner Profile Settings */}
-        <div className="bg-white rounded border border-neutral-200/30">
+        <div className="bg-[#D0DDD0] rounded border border-neutral-200/30">
           <div className="p-6 border-b border-neutral-200/30">
-            <h2 className="text-xl font-semibold">Owner Settings</h2>
-            <p className="text-sm text-gray-500">Manage your account and gym</p>
+            <h2 className="text-xl text-[#727D73] font-semibold">Owner Settings</h2>
+            <p className="text-sm text-[#727D73] ">Manage your Gym</p>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6"> 
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Basic Information</h3>
+              <h3 className="text-lg text-[#727D73] font-medium">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Gym Name</label>
-                  <input
-                    type="text"
-                    value={settings.gymName}
-                    onChange={(e) => setSettings({...settings, gymName: e.target.value})}
-                    className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Owner Name</label>
+                  <label className="block text-sm font-medium text-[#727D73] mb-1">Owner Name</label>
                   <input
                     type="text"
                     value={settings.ownerName}
                     onChange={(e) => setSettings({...settings, ownerName: e.target.value})}
-                    className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1 block bg-[#D0DDD0] w-full rounded-md border-[#727D73] shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-[#727D73] mb-1">Email</label>
                   <input
                     type="email"
                     value={settings.email}
                     onChange={(e) => setSettings({...settings, email: e.target.value})}
-                    className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={settings.phone}
-                    onChange={(e) => setSettings({...settings, phone: e.target.value})}
-                    className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1 block bg-[#D0DDD0] w-full rounded-md border-[#727D73] shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
                   />
                 </div>
               </div>
@@ -94,21 +88,20 @@ const Settings: FC = () => {
 
             {/* Password Change */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Change Password</h3>
+              <h3 className="text-lg font-medium text-[#727D73]">Change Password</h3>
               <div className="space-y-4">
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                  <label className="block text-sm font-medium text-[#727D73] mb-1">New Password</label>
                   <input
                     type="password"
                     value={settings.password}
                     onChange={(e) => setSettings({...settings, password: e.target.value})}
-                    className="w-full px-3 py-2 border border-neutral-200/30 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1 block bg-[#D0DDD0] w-full rounded-md border-[#727D73] shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
                   />
                 </div>
-
               </div>
             </div>
+
 
             {/* Notification Preferences */}
 
@@ -122,7 +115,7 @@ const Settings: FC = () => {
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-[#727D73] rounded hover:bg-[#AAB99A]"
               >
                 Save Changes
               </button>

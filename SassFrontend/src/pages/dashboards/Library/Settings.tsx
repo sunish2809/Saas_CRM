@@ -36,7 +36,6 @@ const Settings: FC = () => {
           },
         }
       );
-      console.log("Member updated:", response.data);
       setSettings({
         ownerName:"",
         email:"",
@@ -52,7 +51,7 @@ const Settings: FC = () => {
 
   return (
     <section style={{height:"100vh"}} className="p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl shadow-lg mx-auto space-y-6">
         {/* Owner Profile Settings */}
         <div className="bg-[#D0DDD0] rounded border border-neutral-200/30">
           <div className="p-6 border-b border-neutral-200/30">

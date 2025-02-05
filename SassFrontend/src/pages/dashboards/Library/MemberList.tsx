@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 // import { format } from "date-fns";
 import {
@@ -19,10 +19,13 @@ interface Member {
   package: string;
   amount: number;
   paymentDate: string;
-  status: string;
+  //status: string;
+  status: "Active" | "Inactive" | "Pending" | "Expired";
   joinDate: string;
   avatar: string;
 }
+
+
 
 function MemberList() {
   const navigate = useNavigate();
@@ -56,16 +59,12 @@ function MemberList() {
           email: member.email,
           phone: member.phone || "",
           package: member.membershipType,
-          // amount: member.paymentHistory.reduce(
-          //   (sum: number, payment: any) => sum + payment.amount,
-          //   0
-          // ),
 
           paymentDate: member.paymentHistory.length > 0
             ? (() => {
                 const latestPayment = member.paymentHistory
                   .slice() // Create a shallow copy to avoid mutating the original array
-                  .sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate))[0]; // Sort by paymentDate in descending order and pick the first entry
+                  .sort((a:any, b:any) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime())[0]; // Sort by paymentDate in descending order and pick the first entry
                 const parsedDate = new Date(latestPayment.paymentDate);
                 return isValid(parsedDate) ? format(parsedDate, "dd/MM/yyyy") : "N/A";
               })()
@@ -76,8 +75,9 @@ function MemberList() {
           ? (() => {
               const latestPayment = member.paymentHistory
                 .slice() // Create a shallow copy to avoid mutating the original array
-                .sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate))[0]; // Sort by paymentDate in descending order and pick the latest
-
+                .sort((a: any, b: any) => 
+                  new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime()
+                )[0];
               const lastPaymentDate = new Date(latestPayment.paymentDate);
               const currentDate = new Date();
 
@@ -108,7 +108,7 @@ function MemberList() {
         }));
         setMembers(apiMembers);
       const inactiveMembers = apiMembers.filter(
-        (member) => member.status === "Inactive"
+        (member :any) => member.status === "Inactive"
       );
       if (inactiveMembers.length > 0) {
         await axios.post(
@@ -132,27 +132,26 @@ function MemberList() {
 
   // Status Badge Component
   const StatusBadge = ({ status }: { status: Member["status"] }) => {
-    const statusStyles = {
+    const statusStyles: Record<Member["status"], string> = {
       Active: "bg-green-100 text-green-800",
       Inactive: "bg-gray-100 text-gray-800",
       Pending: "bg-yellow-100 text-yellow-800",
       Expired: "bg-red-100 text-red-800",
     };
-
+  
     return (
-      <span
-        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[status]}`}
-      >
+      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[status]}`}>
         {status}
       </span>
     );
   };
+  
 
   // Filtering
   const filteredMembers = members.filter((member) => {
     const matchesSearch =
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.memberNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.memberNumber.includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesPackage =
@@ -194,7 +193,6 @@ function MemberList() {
         prevMembers.filter((member) => member.memberNumber !== deleteSeatNumber)
       );
 
-      console.log("Delete response:", response.data);
 
     } catch (error: any) {
       console.error("Error deleting member:", error);
@@ -260,7 +258,7 @@ function MemberList() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto shadow-lg">
         {/* ...Table Code Here */}
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

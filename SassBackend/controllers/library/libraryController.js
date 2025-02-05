@@ -128,7 +128,7 @@ exports.uploadLibraryMembers = async (req, res) => {
   try {
     const members = req.body;
 
-    console.log("members", members);
+
 
     if (!Array.isArray(members)) {
       return res.status(400).json({

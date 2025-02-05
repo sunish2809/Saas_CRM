@@ -217,7 +217,6 @@ const AddMember: React.FC = () => {
         }
       );
 
-      console.log("Delete response:", response.data);
       // Optionally navigate or show a success message
       navigate("/dashboard/library/members"); // Redirect after successful deletion
     } catch (error: any) {
@@ -271,7 +270,7 @@ const AddMember: React.FC = () => {
         }
       );
 
-      console.log("Member added:", response.data);
+
       navigate("/dashboard/library/members");
     } catch (error: any) {
       console.error("Error adding member:", error);
@@ -321,7 +320,7 @@ const AddMember: React.FC = () => {
           },
         }
       );
-      console.log("Member updated:", response.data);
+
       setUpdateFormData({
         seatNumber: "",
         paymentHistory: {
@@ -351,7 +350,7 @@ const AddMember: React.FC = () => {
   };
 
   const transformToFormData = (data: any[]) => {
-    console.log("data", data);
+
 
     // Transforming each record in the data array
     const transformedData = data.map((record: any) => ({
@@ -388,20 +387,17 @@ const AddMember: React.FC = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = e.target?.result;
-      console.log("raw data from file", data); // Log raw file data
       if (data) {
         const workbook = XLSX.read(data, { type: "binary" });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
         const parsedData: any[] = XLSX.utils.sheet_to_json(sheet);
-        console.log("Parsed data:", parsedData); // Log parsed data
         setFileData(parsedData); // Update state
       }
     };
     reader.readAsBinaryString(file);
   };
   useEffect(() => {
-    // console.log("Updated fileData:", fileData);
   }, [fileData]);
 
   const handleFileSubmit = async () => {
@@ -422,8 +418,6 @@ const AddMember: React.FC = () => {
 
       //const transformedData = transformToFormData(fileData);
       const transformedData = fileData
-
-      console.log("transform", transformedData);
       const response = await axios.post(
         "http://localhost:3000/api/library/upload-members",
         transformedData,
@@ -435,7 +429,6 @@ const AddMember: React.FC = () => {
         }
       );
 
-      console.log("Members added:", response.data);
       navigate("/dashboard/library/members");
     } catch (error: any) {
       console.error("Error adding members:", error);

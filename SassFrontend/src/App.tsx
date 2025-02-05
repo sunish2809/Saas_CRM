@@ -53,7 +53,7 @@ function App() {
       />
       {/* Protected member routes */}
       <Route
-        path="/dashboard/gym/member/:memberId"
+        path="/dashboard/gym/members/:memberId"
         element={
           <ProtectedRoute requiredBusinessType="gym">
             <MemberProfile />

@@ -3,7 +3,7 @@ import FusionCharts from "fusioncharts";
 import Charts from "fusioncharts/fusioncharts.charts";
 import ReactFusioncharts from "react-fusioncharts";
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
-import { format, isValid, parse} from "date-fns";
+import { format, isValid, parse } from "date-fns";
 import axios from "axios";
 
 ReactFusioncharts.fcRoot(FusionCharts, Charts, FusionTheme);
@@ -14,9 +14,6 @@ const Analytics = () => {
   const [deleteAddSelectedYear, setDeleteAddSelectedYear] = useState(
     new Date().getFullYear()
   );
-
-
-
 
   const [analyticsData, setAnalyticsData] = useState({
     totalMembers: 0,
@@ -38,12 +35,10 @@ const Analytics = () => {
   });
 
   const [monthlyTrendChart, SetMonthlyTrendChart] = useState<any>({
-
     monthlyPaymentTrends: {},
   });
 
   const [addDeleteChart, SetAddDeleteChart] = useState<any>({
-
     addDeleteTrends: {},
   });
 
@@ -108,23 +103,24 @@ const Analytics = () => {
           )}`,
         }));
 
-        const years :any= [
+        const years: any = [
           ...new Set(
             apiMembers
               .filter((member: { paymentDate: { raw: string | null } }) => {
                 return member.paymentDate; // Ensure raw date exists
               })
-              .map((member: { paymentDate: { raw: string }|string }) => {
+              .map((member: { paymentDate: { raw: string } | string }) => {
                 //const rawDate = member.paymentDate;
-                const rawDate =typeof member.paymentDate === "string"
-                ? member.paymentDate
-                : member.paymentDate.raw; // Handle both cases
+                const rawDate =
+                  typeof member.paymentDate === "string"
+                    ? member.paymentDate
+                    : member.paymentDate.raw; // Handle both cases
                 const parsedDate = parse(rawDate, "dd/MM/yyyy", new Date()); // Correctly parse DD/MM/YYYY
                 return isValid(parsedDate) ? parsedDate.getFullYear() : null; // Extract year if valid
               })
               .filter((year: number | null) => year !== null) // Remove invalid years
           ),
-        ].sort((a:any, b:any) => a - b);
+        ].sort((a: any, b: any) => a - b);
 
         setAvailableYears(years);
 
@@ -152,7 +148,6 @@ const Analytics = () => {
             (member: { package: string }) => member.package === "Annual"
           ).length,
         };
-
 
         // Update state
         setAnalyticsData({
@@ -190,7 +185,6 @@ const Analytics = () => {
               },
               data: [{ label: "Members", value: totalMembers }],
             },
-            
           },
           revenue: {
             type: "column2d",
@@ -262,7 +256,6 @@ const Analytics = () => {
               ],
             },
           },
-          
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -272,129 +265,120 @@ const Analytics = () => {
     fetchData();
   }, []);
 
-  useEffect(()=>{
-
-    const addDeleteMemberStat = async()=>{
-        try{
-          const token = localStorage.getItem("token"); // Retrieve token from local storage
-          const response = await axios.get(
-            "http://localhost:3000/api/library/get-all-members",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`, // Add token to headers
-              },
-            }
-          );
-          const stats = new Array(12).fill(0);
-            response.data.forEach((member :any) => {
-            member.paymentHistory.forEach((payment:any) => {
-              const paymentDate = new Date(payment.paymentDate);
-
-    
-              if (paymentDate.getFullYear() === deleteAddSelectedYear) {
-                stats[paymentDate.getMonth()] += 1;
-              }
-            });
-          });
-          
-          const newStats = stats.map((count, index) => ({ month: index + 1, count }));
-
-          // Fetch deleted members
-          const deletedMembersResponse = await axios.get(
-            "http://localhost:3000/api/library/get-deleted-member",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          const deletedStats = new Array(12).fill(0);
-          deletedMembersResponse.data
-            .filter((stat:any) => stat._id.year === deleteAddSelectedYear)
-            .forEach((stat:any) => {
-              deletedStats[stat._id.month - 1] = stat.count; // Use month - 1 for 0-based index
-            });
-
-          SetAddDeleteChart((prevConfigs: any) => ({
-            addDeleteTrends: {
-              type: "msline",
-              width: "100%",
-              height: "400",
-              dataFormat: "json",
-              dataSource: {
-                chart: {
-                  caption: `Monthly Trend for added and deleted members (${deleteAddSelectedYear})`,
-                  xAxisName: "Month",
-                  yAxisName: "Count",
-                  theme: "fusion",
-                  bgColor: "#D0DDD0", // Overall chart background color
-                  canvasBgColor: "#D0DDD0", // Canvas background color (on which the graph is drawn)
-                  canvasBgAlpha: "100", // Make sure canvas background is fully opaque
-                  baseFontColor: "#727D73", // Font color
-                  showAlternateHGridColor: 0, // Disable alternate grid colors
-                  divLineColor: "#727D73", // Grid line color
-                  divLineThickness: "1", // Line thickness
-                  divLineDashed: "0", // Solid lines
-                  paletteColors: "#727D73, #3D3D3D", // Custom colors for datasets
-                  usePlotGradientColor: 0, // Disable gradients on the plot
-                  showCanvasBorder: 0, // Remove the border of the canvas
-                  yAxisNameFontColor: "#727D73", // Y-axis label color
-                  xAxisNameFontColor: "#727D73", // X-axis label color
-                  captionFontColor: "#727D73", // Caption color
-                },
-                categories: [
-                  {
-                    category: [
-                      { label: "Jan" },
-                      { label: "Feb" },
-                      { label: "Mar" },
-                      { label: "Apr" },
-                      { label: "May" },
-                      { label: "Jun" },
-                      { label: "Jul" },
-                      { label: "Aug" },
-                      { label: "Sep" },
-                      { label: "Oct" },
-                      { label: "Nov" },
-                      { label: "Dec" },
-                    ],
-                  },
-                ],
-                dataset: [
-                  {
-                    seriesname: "New/Renewed Members",
-                    lineColor: "#727D73",
-                    anchorBgColor: "#727D73",
-                    data: newStats.map((stat) => ({ value: stat.count })),
-                  },
-                  {
-                    seriesname: "Deleted Members",
-                    lineColor: "#3D3D3D",
-                    anchorBgColor: "#3D3D3D",
-                    data: deletedStats.map((count) => ({ value: count })),
-                  },
-                ],
-              },
+  useEffect(() => {
+    const addDeleteMemberStat = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Retrieve token from local storage
+        const response = await axios.get(
+          "http://localhost:3000/api/library/get-all-members",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add token to headers
             },
-          }));
-          
-          
-          
-          
-          
+          }
+        );
+        const stats = new Array(12).fill(0);
+        response.data.forEach((member: any) => {
+          member.paymentHistory.forEach((payment: any) => {
+            const paymentDate = new Date(payment.paymentDate);
 
+            if (paymentDate.getFullYear() === deleteAddSelectedYear) {
+              stats[paymentDate.getMonth()] += 1;
+            }
+          });
+        });
 
-        }catch(error:any){
-          console.log(error)
-        }
-    } 
+        const newStats = stats.map((count, index) => ({
+          month: index + 1,
+          count,
+        }));
+
+        // Fetch deleted members
+        const deletedMembersResponse = await axios.get(
+          "http://localhost:3000/api/library/get-deleted-member",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        
+
+        const deletedStats = new Array(12).fill(0);
+        deletedMembersResponse.data
+          .filter((stat: any) => stat._id.year === deleteAddSelectedYear)
+          .forEach((stat: any) => {
+            deletedStats[stat._id.month - 1] = stat.count; // Use month - 1 for 0-based index
+          });
+
+        SetAddDeleteChart((prevConfigs: any) => ({
+          addDeleteTrends: {
+            type: "msline",
+            width: "100%",
+            height: "400",
+            dataFormat: "json",
+            dataSource: {
+              chart: {
+                caption: `Monthly Trend for added and deleted members (${deleteAddSelectedYear})`,
+                xAxisName: "Month",
+                yAxisName: "Count",
+                theme: "fusion",
+                bgColor: "#D0DDD0", // Overall chart background color
+                canvasBgColor: "#D0DDD0", // Canvas background color (on which the graph is drawn)
+                canvasBgAlpha: "100", // Make sure canvas background is fully opaque
+                baseFontColor: "#727D73", // Font color
+                showAlternateHGridColor: 0, // Disable alternate grid colors
+                divLineColor: "#727D73", // Grid line color
+                divLineThickness: "1", // Line thickness
+                divLineDashed: "0", // Solid lines
+                paletteColors: "#727D73, #3D3D3D", // Custom colors for datasets
+                usePlotGradientColor: 0, // Disable gradients on the plot
+                showCanvasBorder: 0, // Remove the border of the canvas
+                yAxisNameFontColor: "#727D73", // Y-axis label color
+                xAxisNameFontColor: "#727D73", // X-axis label color
+                captionFontColor: "#727D73", // Caption color
+              },
+              categories: [
+                {
+                  category: [
+                    { label: "Jan" },
+                    { label: "Feb" },
+                    { label: "Mar" },
+                    { label: "Apr" },
+                    { label: "May" },
+                    { label: "Jun" },
+                    { label: "Jul" },
+                    { label: "Aug" },
+                    { label: "Sep" },
+                    { label: "Oct" },
+                    { label: "Nov" },
+                    { label: "Dec" },
+                  ],
+                },
+              ],
+              dataset: [
+                {
+                  seriesname: "New/Renewed Members",
+                  lineColor: "#727D73",
+                  anchorBgColor: "#727D73",
+                  data: newStats.map((stat) => ({ value: stat.count })),
+                },
+                {
+                  seriesname: "Deleted Members",
+                  lineColor: "#3D3D3D",
+                  anchorBgColor: "#3D3D3D",
+                  data: deletedStats.map((count) => ({ value: count })),
+                },
+              ],
+            },
+          },
+        }));
+      } catch (error: any) {
+        console.log(error);
+      }
+    };
     addDeleteMemberStat();
-
-
-  },[deleteAddSelectedYear])
-  
-  
+  }, [deleteAddSelectedYear]);
 
   useEffect(() => {
     const calculateMonthlyTrends = async () => {
@@ -416,16 +400,14 @@ const Analytics = () => {
               const year = paymentDate.getFullYear();
               const month = paymentDate.getMonth();
               const key = `${year}-${month}`;
-              
-              if (!acc[key]) acc[key] = 0;
 
+              if (!acc[key]) acc[key] = 0;
 
               acc[key] += payment.amount;
             }
           });
           return acc;
         }, {});
-
 
         const monthlyData = Array.from({ length: 12 }, (_, month) => {
           const key = `${selectedYear}-${month}`;
@@ -475,29 +457,42 @@ const Analytics = () => {
   }, [selectedYear]);
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen bg-[#F0F0D7]">
+    <div className="p-8  min-h-screen bg-[#F0F0D7]">
       <h2 className="text-3xl font-bold text-center mb-8 text-[#727D73]">
         Analytics Dashboard
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
-          <h3 className="text-xl text-[#727D73] font-semibold">Total Members</h3>
-          <p className="text-2xl text-[#727D73] font-bold">{analyticsData.totalMembers}</p>
+          <h3 className="text-xl text-[#727D73] font-semibold">
+            Total Members
+          </h3>
+          <p className="text-2xl text-[#727D73] font-bold">
+            {analyticsData.totalMembers}
+          </p>
           <ReactFusioncharts {...chartConfigs.totalMembers} />
         </div>
         <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
-          <h3 className="text-xl text-[#727D73] font-semibold">Total Revenue</h3>
-          <p className="text-2xl text-[#727D73] font-bold">{analyticsData.totalRevenue}</p>
+          <h3 className="text-xl text-[#727D73] font-semibold">
+            Total Revenue
+          </h3>
+          <p className="text-2xl text-[#727D73] font-bold">
+            {analyticsData.totalRevenue}
+          </p>
           <ReactFusioncharts {...chartConfigs.revenue} />
         </div>
         <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
-          <h3 className="text-xl text-[#727D73] font-semibold">Membership Distribution</h3>
+          <h3 className="text-xl text-[#727D73] font-semibold">
+            Membership Distribution
+          </h3>
           <ReactFusioncharts {...chartConfigs.membershipDistribution} />
         </div>
 
         <div className="bg-[#D0DDD0] rounded-lg p-6">
           <div className="mb-4">
-            <label htmlFor="yearFilter" className=" text-[#727D73] mr-2 font-medium">
+            <label
+              htmlFor="yearFilter"
+              className=" text-[#727D73] mr-2 font-medium"
+            >
               Select Year:
             </label>
             <select
@@ -516,13 +511,15 @@ const Analytics = () => {
                 </option>
               ))}
             </select>
-            
           </div>
           <ReactFusioncharts {...addDeleteChart.addDeleteTrends} />
         </div>
         <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6 col-span-full">
           <div className="mb-4">
-            <label htmlFor="yearFilter" className=" text-[#727D73] mr-2 font-medium">
+            <label
+              htmlFor="yearFilter"
+              className=" text-[#727D73] mr-2 font-medium"
+            >
               Select Year:
             </label>
             <select
@@ -541,8 +538,6 @@ const Analytics = () => {
                 </option>
               ))}
             </select>
-
-
           </div>
 
           <ReactFusioncharts {...monthlyTrendChart.monthlyPaymentTrends} />
@@ -551,7 +546,5 @@ const Analytics = () => {
     </div>
   );
 };
-
-
 
 export default Analytics;
