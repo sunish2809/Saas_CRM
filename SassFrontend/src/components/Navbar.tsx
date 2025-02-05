@@ -35,7 +35,6 @@ const Navbar = () => {
 
 
   return (
-    // <nav id="navbar" className="bg-neutral-900 fixed w-full z-50 bg-cover bg-center bg-no-repeat bg-[url('https://mydukaan.io/_next/static/media/banner-home-main.ebd707dd321420dd97b2e08e0aa39020.webp')]">
     <nav
       id="navbar"
       className={`fixed w-full z-50 transition-colors duration-300 ${
@@ -80,13 +79,13 @@ const Navbar = () => {
             >
               Testimonials
             </a>
-            <a
+            {/* <a
               onClick={handleScroll}
               href="#integration"
               className="text-black-300 hover:text-black transition-colors"
             >
               Integration
-            </a>
+            </a> */}
             <a
               onClick={handleScroll}
               href="#contact"
