@@ -238,7 +238,7 @@ const MemberProfile: FC = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-semibold">{memberData.name}</h2>
-                <p className="text-gray-500">Member ID: {memberData.seatNumber}</p>
+                <p className="text-gray-500">Member ID: {memberData.memberNumber}</p>
               </div>
             </div>
             <span

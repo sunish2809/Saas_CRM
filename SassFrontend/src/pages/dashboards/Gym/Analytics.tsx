@@ -282,7 +282,7 @@ const Analytics: FC = () => {
             deletedStats[stat._id.month - 1] = stat.count; // Use month - 1 for 0-based index
           });
 
-        SetAddDeleteChart((prevConfigs: any) => ({
+        SetAddDeleteChart(() => ({
           addDeleteTrends: {
             type: "msline",
             width: "100%",

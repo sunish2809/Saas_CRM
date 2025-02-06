@@ -392,8 +392,8 @@ const Analytics = () => {
           }
         );
 
-        const monthlyPayments = response.data.reduce((acc, member) => {
-          member.paymentHistory.forEach((payment) => {
+        const monthlyPayments = response.data.reduce((acc:any, member:any) => {
+          member.paymentHistory.forEach((payment:any) => {
             const paymentDate = new Date(payment.paymentDate);
             if (!isNaN(paymentDate.getTime())) {
               const year = paymentDate.getFullYear();
@@ -418,7 +418,7 @@ const Analytics = () => {
           };
         });
 
-        SetMonthlyTrendChart((prevConfigs) => ({
+        SetMonthlyTrendChart((prevConfigs:any) => ({
           ...prevConfigs,
           monthlyPaymentTrends: {
             type: "line",
