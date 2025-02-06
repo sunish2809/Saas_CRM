@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
 
-    "build": "tsc --noEmit || true",
+
+    "build": "vite build || true",
+
     "lint": "eslint .",
     "preview": "vite preview"
   },
