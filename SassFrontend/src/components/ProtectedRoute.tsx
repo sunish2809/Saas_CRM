@@ -1,12 +1,7 @@
 
 
 import { Navigate } from 'react-router-dom';
-// interface User {
-//   businessType: string;
-//   email: string;
-//   name: string;
-//   id: string;
-// }
+
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
