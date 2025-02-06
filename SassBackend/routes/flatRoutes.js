@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Protect all library routes
 router.use(authMiddleware);
-router.use(checkBusinessAccess(['LIBRARY']));
+//router.use(checkBusinessAccess(['LIBRARY']));
 
 // router.get('/books', LibraryController.getBooks);
 // Add other library routes...

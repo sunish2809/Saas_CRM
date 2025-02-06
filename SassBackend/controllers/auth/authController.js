@@ -68,70 +68,143 @@ exports.signUp = async (req, res) => {
   }
 };
 
+// exports.signIn = async (req, res) => {
+//   try {
+//     const { email, password, businessType } = req.body;
+
+//     // Validate required fields
+//     if (!email || !password || !businessType) {
+//       return res.status(400).json({
+//         message: 'Email, password, and business type are required'
+//       });
+//     }
+
+//     // Find user by email AND business type
+//     const user = await Owner.findOne({ 
+//       email,
+//       businessType: businessType.toUpperCase()
+//     });
+    
+//     // Check if user exists
+//     if (!user) {
+//       return res.status(401).json({
+//         message: `No account found with this email for ${businessType} management system`
+//       });
+//     }
+
+//     // Check password
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(401).json({
+//         message: 'Invalid password'
+//       });
+//     }
+
+//     // Generate JWT token
+//     const token = jwt.sign(
+//       { 
+//         userId: user._id, 
+//         businessType: user.businessType,
+//         email: user.email
+//       },
+//       process.env.JWT_SECRET,
+//       { expiresIn: '24h' }
+//     );
+
+//     // Send response without password
+//     res.status(200).json({
+//       message: 'Login successful',
+//       token,
+//       user: {
+//         id: user._id,
+//         email: user.email,
+//         name: user.name,
+//         businessType: user.businessType,
+//         createdAt: user.createdAt
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error('SignIn error:', error);
+//     res.status(500).json({
+//       message: 'An error occurred during sign in',
+//       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+//     });
+//   }
+// };
+
+
 exports.signIn = async (req, res) => {
   try {
     const { email, password, businessType } = req.body;
 
-    // Validate required fields
     if (!email || !password || !businessType) {
-      return res.status(400).json({
-        message: 'Email, password, and business type are required'
-      });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Find user by email AND business type
-    const user = await Owner.findOne({ 
+    // Find user by email & business type
+    let user = await Owner.findOne({ 
       email,
       businessType: businessType.toUpperCase()
     });
-    
-    // Check if user exists
+
     if (!user) {
       return res.status(401).json({
         message: `No account found with this email for ${businessType} management system`
       });
     }
 
-    // Check password
+    // Validate password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({
-        message: 'Invalid password'
-      });
+      return res.status(401).json({ message: "Invalid password" });
     }
+
+    // Initialize trial if first login
+    if (!user.trialStartDate) {
+      user.trialStartDate = new Date();
+      user.trialStatus = "TRIAL";
+    }
+
+    // Check if trial has expired (7-day trial period)
+    const trialEndDate = new Date(user.trialStartDate);
+    trialEndDate.setDate(trialEndDate.getDate() + 7);
+
+    if (new Date() > trialEndDate && user.trialStatus === "TRIAL") {
+      user.trialStatus = "EXPIRED"; // Update status in DB
+    }
+
+    await user.save(); // Save updates to DB
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user._id, 
-        businessType: user.businessType,
-        email: user.email
-      },
+      { userId: user._id, businessType: user.businessType, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: "24h" }
     );
 
-    // Send response without password
     res.status(200).json({
-      message: 'Login successful',
+      message: "Login successful",
       token,
       user: {
         id: user._id,
         email: user.email,
         name: user.name,
         businessType: user.businessType,
-        createdAt: user.createdAt
-      }
+        trialStatus: user.trialStatus,  // Trial info stored in DB
+        trialStartDate: user.trialStartDate,
+        membershipType: user.membershipType, 
+        createdAt: user.createdAt,
+      },
     });
 
   } catch (error) {
-    console.error('SignIn error:', error);
-    res.status(500).json({
-      message: 'An error occurred during sign in',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error("SignIn error:", error);
+    res.status(500).json({ message: "Error during sign in" });
   }
 };
+
+
 
 // Optional: Add a function to verify token
 exports.verifyToken = async (req, res) => {

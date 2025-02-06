@@ -10,6 +10,7 @@ import GetStarted from "./components/GetStarted";
 import MemberProfile from "./pages/dashboards/Gym/MemberProfile";
 import LibraryDashboard from "./pages/dashboards/Library/LibraryDashboard";
 import MemberProfileLibrary from "./pages/dashboards/Library/MemberProfileLibrary";
+import Pricing from "./components/Pricing";
 
 
 function App() {
@@ -17,6 +18,9 @@ function App() {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Home />} />
+
+      <Route path="/pricing" element= {<Pricing/>}/>
+      
       <Route path="/get-started" element={<GetStarted />} />
       {/* Auth routes - support both patterns */}
       <Route path="/signin" element={<SignIn />} /> {/* For query params */}
@@ -24,8 +28,6 @@ function App() {
       <Route path="/signin/:businessType" element={<SignIn />} />{" "}
       {/* For path params */}
       <Route path="/signup/:businessType" element={<SignUp />} />{" "}
-      {/* For path params */}
-      {/* <Route path="/member/:memberId" element={<MemberProfile />} /> */}
       {/* Protected dashboard routes */}
       <Route
         path="/dashboard/gym/*"

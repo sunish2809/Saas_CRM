@@ -8,7 +8,7 @@ const router = express.Router();
 
 // Apply middleware to all routes
 router.use(authMiddleware);
-router.use(checkBusinessAccess(['LIBRARY']));
+router.use(checkBusinessAccess(['LIBRARY','GYM']));
 
 router.post('/send-sms',automateMessage)
 

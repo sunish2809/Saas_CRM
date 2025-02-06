@@ -34,6 +34,8 @@ exports.authMiddleware = async (req, res, next) => {
 exports.checkBusinessAccess = (allowedBusinessTypes) => {
     return (req, res, next) => {
         try {
+    
+
             // Check if owner exists (should be added by authMiddleware)
             if (!req.owner) {
                 return res.status(401).json({ message: 'Authentication required' });

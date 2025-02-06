@@ -120,7 +120,7 @@ function MemberList() {
             },
           }
         );
-        //console.log("SMS sent to inactive members.");
+
       }
       } catch (error) {
         console.error("Error fetching members:", error);
@@ -202,6 +202,7 @@ function MemberList() {
 
   return (
     <div className="p-6" style={{height:"100vh"}}>
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

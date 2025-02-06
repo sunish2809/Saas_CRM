@@ -36,7 +36,6 @@ const Settings: FC = () => {
           },
         }
       );
-      console.log("Member updated:", response.data);
       setSettings({
         ownerName:"",
         email:"",

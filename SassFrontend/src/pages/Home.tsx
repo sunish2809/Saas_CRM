@@ -8,6 +8,7 @@ import Testimonials from '../components/Testimonials';
 import Integration from '../components/Integration';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
+import LandingPrice from '../components/LandingPrice';
 
 const Home = () => {
   useEffect(() => {
@@ -28,7 +29,8 @@ const Home = () => {
         <Hero />
         <Features />
         <Solutions />
-        <Pricing />
+        <LandingPrice/>
+        {/* <Pricing /> */}
         <Testimonials />
         <Contact />
       </main>

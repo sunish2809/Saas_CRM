@@ -8,6 +8,7 @@ const  gymroutes = require('./routes/gymRoutes');
 const  flatroutes = require('./routes/flatRoutes');
 const  ownerRoutes =require('./routes/ownerRoutes');
 const messageRoutes = require('./routes/messageRoutes')
+const paymentRoutes = require("./routes/paymentRoutes");
 //const routes = require('./routes/auth')
 dotenv.config();
 const app = express();
@@ -24,6 +25,8 @@ app.use('/api/gym',gymroutes);
 app.use('/api/flat',flatroutes);
 app.use('/api/owner',ownerRoutes);
 app.use('/api',messageRoutes);
+app.use("/api/payment", paymentRoutes);
+
 const PORT = process.env.PORT||3000;
 app.listen(PORT,()=>{
     console.log(`Server running on http://localhost:${PORT}`)

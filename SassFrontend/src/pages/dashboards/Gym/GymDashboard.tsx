@@ -1,75 +1,83 @@
 
 
-// import { useState } from 'react';
-// import Sidebar from './Sidebar';
-// import Home from './Home';
-// import AddMember from './AddMember';
-// import MemberList from './MemberList';
-// import Analytics from './Analytics';
-// import Settings from './Settings';
-// import Profile from './MemberProfile';
 
-
-// const GymDashboard = () => {
-//   const [currentPage, setCurrentPage] = useState('');
-//   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-//   const renderPage = () => {
-//     switch (currentPage) {
-//       // case 'home':
-//       //   return <Home />;
-//       case 'add':
-//         return <AddMember />;
-//       case 'list':
-//         return <MemberList />;
-//       // case 'analytics':
-//       //   return <Analytics />;
-//       case 'settings':
-//         return <Settings />;
-//       case 'profile':
-//         return <Profile />;
-//       default:
-//         return <Analytics />;
-//       // default:
-//       //   return <Home />;
-//     }
-//   };
-
-//   return (
-//     <div className="flex min-h-screen bg-gray-100">
-//       <Sidebar 
-//         currentPage={currentPage} 
-//         setCurrentPage={setCurrentPage}
-//         isMobileMenuOpen={isMobileMenuOpen}
-//         setIsMobileMenuOpen={setIsMobileMenuOpen}
-//       />
-      
-//       <main className="flex-1 ml-0 lg:ml-64">
-//         {renderPage()}
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default GymDashboard;
-
-
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Analytics from "./Analytics";
 import Settings from "./Settings";
 import MemberList from "./MemberList";
 import AddMember from "./AddMember";
+import axios from "axios";
+import { useEffect, useState } from "react";
 // import MemberProfile from "./MemberProfile";
 
 const GymDashboard = () => {
+  const navigate = useNavigate();
+  const [trialStatus, setTrialStatus] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // To prevent flickering while fetching
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/signin"); // Redirect to sign-in if no token found
+          return;
+        }
+
+        const response = await axios.get(
+          "http://localhost:3000/api/owner/get-owner",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const user = response.data;
+        setTrialStatus(user.trialStatus);
+        
+        if (user.trialStatus === "EXPIRED") {
+          alert("Your trial has expired! Please upgrade your plan.");
+          navigate("/pricing"); // Redirect immediately to the pricing page
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        navigate("/signin"); // Redirect to sign-in on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [navigate]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading state while fetching data
+  }
+
+  // **If the trial is expired, prevent rendering the dashboard**
+  if (trialStatus === "EXPIRED") {
+    return null; // Return nothing, as the user is being redirected
+  }
   return (
     <div className="flex">
       {/* Sidebar remains fixed */}
       <Sidebar />
 
       {/* Main content with routes */}
-      <main className="flex-1 ml-64 bg-gray-100 overflow-y-auto">
+      <main className="flex-1 ml-64 bg-[#F0F0D7] overflow-y-auto">
+        {trialStatus === "TRIAL" && (
+          <div className="flex align-middle">
+            <div className="bg-yellow-200 text-yellow-800 p-4 mt-4 rounded">
+              Your trial ends soon! Upgrade now to continue using the platform.
+            </div>
+            <b>
+              <button
+                className="ml-auto text-400 p-4 mt-4 rounded"
+                onClick={() => navigate("/pricing")}
+              >
+                Upgrade
+              </button>
+            </b>
+          </div>
+        )}
         <Routes>
           <Route path="analytics" element={<Analytics />} />
           <Route path="members" element={<MemberList />} />
@@ -86,3 +94,5 @@ const GymDashboard = () => {
 };
 
 export default GymDashboard;
+
+

@@ -230,7 +230,6 @@ const AddMember: FC = () => {
           },
         }
       );
-      console.log("Member added:", response.data);
       navigate("/dashboard/gym/members");
     } catch (error: any) {
       setErrors([

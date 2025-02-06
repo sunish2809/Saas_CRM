@@ -190,8 +190,6 @@ function MemberList() {
       setMembers((prevMembers) =>
         prevMembers.filter((member) => member.memberNumber !== deleteSeatNumber)
       );
-
-      console.log("Delete response:", response.data);
     } catch (error: any) {
       console.error("Error deleting member:", error);
     }

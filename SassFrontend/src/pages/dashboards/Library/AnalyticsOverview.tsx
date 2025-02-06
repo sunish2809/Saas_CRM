@@ -302,7 +302,6 @@ const Analytics = () => {
             },
           }
         );
-        
 
         const deletedStats = new Array(12).fill(0);
         deletedMembersResponse.data
