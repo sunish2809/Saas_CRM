@@ -38,7 +38,7 @@ const AddMember: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormError[]>([]);
   const [updateErrors, setUpdateErrors] = useState<FormError[]>([]);
-  const [deleteError, SetDeleteError] = useState("");
+  const [, SetDeleteError] = useState("");
   const [fileData, setFileData] = useState<any[]>([]);
   const [FileErrors, setFileErrors] = useState<any[]>([]);
   const [formData, setFormData] = useState<MemberFormData>({
@@ -207,7 +207,7 @@ const AddMember: React.FC = () => {
         return;
       }
 
-      const response = await axios.delete(
+      await axios.delete(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/delete-member/${deleteSeatNumber}`,
         {
           headers: {
@@ -259,7 +259,7 @@ const AddMember: React.FC = () => {
         return;
       }
 
-      const response = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/add-member`,
         formData,
         {
@@ -310,7 +310,7 @@ const AddMember: React.FC = () => {
         paymentHistory: updateFormData.paymentHistory,
         membershipType: updateFormData.membershipType,
       };
-      const response = await axios.put(
+      await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/update-member`,
         requestData,
         {
@@ -349,36 +349,36 @@ const AddMember: React.FC = () => {
     }
   };
 
-  const transformToFormData = (data: any[]) => {
+  // const transformToFormData = (data: any[]) => {
 
 
-    // Transforming each record in the data array
-    const transformedData = data.map((record: any) => ({
+  //   // Transforming each record in the data array
+  //   const transformedData = data.map((record: any) => ({
       
-      name: record.name,
-      email: record.email,
-      phone: record.phone,
-      address: record.address,
-      seatNumber: record.seatNumber,
-      aadharNumber: record.aadharNumber,
-      emergencyContact: record.emergencyContact,
-      gender: record.gender,
-      dateOfBirth: record.dateOfBirth,
-      membershipType: record.membershipType,
-      // paymentHistory: [
-      //   {
-      //     amount: record.paymentHistory_amount || 0,
-      //     paymentDate: record.paymentHistory_date || new Date().toISOString(),
-      //   },
-      // ],
-      paymentHistory: record.paymentHistory.map((payment: any) => ({
-        amount: payment.amount || 0,
-        paymentDate: payment.paymentDate || new Date().toISOString(),
-      })),
-    }));
+  //     name: record.name,
+  //     email: record.email,
+  //     phone: record.phone,
+  //     address: record.address,
+  //     seatNumber: record.seatNumber,
+  //     aadharNumber: record.aadharNumber,
+  //     emergencyContact: record.emergencyContact,
+  //     gender: record.gender,
+  //     dateOfBirth: record.dateOfBirth,
+  //     membershipType: record.membershipType,
+  //     // paymentHistory: [
+  //     //   {
+  //     //     amount: record.paymentHistory_amount || 0,
+  //     //     paymentDate: record.paymentHistory_date || new Date().toISOString(),
+  //     //   },
+  //     // ],
+  //     paymentHistory: record.paymentHistory.map((payment: any) => ({
+  //       amount: payment.amount || 0,
+  //       paymentDate: payment.paymentDate || new Date().toISOString(),
+  //     })),
+  //   }));
 
-    return transformedData; // Return the new array
-  };
+  //   return transformedData; // Return the new array
+  // };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -418,7 +418,7 @@ const AddMember: React.FC = () => {
 
       //const transformedData = transformToFormData(fileData);
       const transformedData = fileData
-      const response = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/upload-members`,
         transformedData,
         {

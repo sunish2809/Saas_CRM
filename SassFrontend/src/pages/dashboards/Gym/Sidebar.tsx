@@ -66,7 +66,7 @@ const navigationItems: NavItem[] = [
 ];
 
 function Sidebar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 

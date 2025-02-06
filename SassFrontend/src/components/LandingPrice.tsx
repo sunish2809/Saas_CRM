@@ -1,23 +1,7 @@
-// import React from 'react'
 
-// const LandingPrice = () => {
-//   return (
-//     <div>
-      
-//     </div>
-//   )
-// }
-
-// export default LandingPrice
-
-
-
-import axios from "axios";
 import { FC } from "react";
-import { useNavigate } from "react-router-dom";
 
 const LandingPrice: FC = () => {
-  const navigate = useNavigate()
 
   const pricingPlans = [
     {
@@ -63,22 +47,6 @@ const LandingPrice: FC = () => {
     },
   ];
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if (document.getElementById("razorpay-script")) {
-        resolve(true);
-        return;
-      }
-  
-      const script = document.createElement("script");
-      script.id = "razorpay-script";
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.async = true;
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
   
   
 
@@ -121,12 +89,6 @@ const LandingPrice: FC = () => {
                 ))}
               </ul>
   
-              {/* Lifetime Plan Button is still a payment trigger */}
-              {/* <button
-                className={`w-full ${plan.buttonClassName} text-white py-3 rounded-lg transition-colors mt-auto`}
-              >
-                {plan.name === "Lifetime" ? "Buy Now" : plan.buttonText}
-              </button> */}
             </div>
           ))}
         </div>

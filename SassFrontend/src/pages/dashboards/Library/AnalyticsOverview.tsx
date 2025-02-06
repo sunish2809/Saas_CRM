@@ -42,10 +42,10 @@ const Analytics = () => {
     addDeleteTrends: {},
   });
 
-  const parseDate = (dateStr: string): Date => {
-    const [day, month, year] = dateStr.split("/").map(Number);
-    return new Date(year, month - 1, day); // Months are 0-based in JavaScript
-  };
+  // const parseDate = (dateStr: string): Date => {
+  //   const [day, month, year] = dateStr.split("/").map(Number);
+  //   return new Date(year, month - 1, day); // Months are 0-based in JavaScript
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -310,7 +310,7 @@ const Analytics = () => {
             deletedStats[stat._id.month - 1] = stat.count; // Use month - 1 for 0-based index
           });
 
-        SetAddDeleteChart((prevConfigs: any) => ({
+        SetAddDeleteChart(() => ({
           addDeleteTrends: {
             type: "msline",
             width: "100%",

@@ -179,7 +179,7 @@ function MemberList() {
         return;
       }
 
-      const response = await axios.delete(
+      await axios.delete(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/delete-member/${deleteSeatNumber}`,
         {
           headers: {

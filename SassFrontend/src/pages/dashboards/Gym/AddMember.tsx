@@ -1,4 +1,4 @@
-import { FC, FormEvent, useState, useEffect } from "react";
+import { FC, FormEvent, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -220,7 +220,7 @@ const AddMember: FC = () => {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/login");
 
-      const response = await axios.post(
+       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/gym/add-member`,
         formData,
         {

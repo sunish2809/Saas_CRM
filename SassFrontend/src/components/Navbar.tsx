@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigation } from "react-router-dom";
 
 
 const Navbar = () => {
@@ -79,13 +78,7 @@ const Navbar = () => {
             >
               Testimonials
             </a>
-            {/* <a
-              onClick={handleScroll}
-              href="#integration"
-              className="text-black-300 hover:text-black transition-colors"
-            >
-              Integration
-            </a> */}
+
             <a
               onClick={handleScroll}
               href="#contact"
@@ -93,35 +86,13 @@ const Navbar = () => {
             >
               Contact
             </a>
-            {/* <button className="bg-[#146eb4] text-white px-4 py-2 rounded-md hover:bg-[#0b1d2b] transition ease-in-out duration-150">
-              Sign In
-            </button> */}
+
           </div>
 
-          {/* Mobile menu button */}
-          {/* <div className="md:hidden">
-              <button 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-gray-400 hover:text-white focus:outline-none"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div> */}
         </div>
       </div>
 
-      {/* Mobile Menu */}
 
-      {/* {mobileMenuOpen && (
-          <div className="md:hidden bg-neutral-900">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <a href="#features" className="block text-gray-300 hover:text-white py-2 px-3 rounded-md">Features</a>
-
-            </div>
-          </div>
-        )} */}
     </nav>
   );
 };

@@ -26,7 +26,7 @@ const Settings: FC = () => {
     // Implement save functionality
     try{
       const token = localStorage.getItem("token");
-      const response = await axios.put(
+      await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/api/owner/update-owner`,
         requestData,
         {

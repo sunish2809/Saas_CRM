@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import  { FC, useEffect, useState } from "react";
 import FusionCharts from "fusioncharts";
 import Charts from "fusioncharts/fusioncharts.charts";
 import ReactFusioncharts from "react-fusioncharts";

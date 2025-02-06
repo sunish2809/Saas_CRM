@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import {
   UserPlusIcon,
   TrashIcon,
-  MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import axios from "axios";
 
@@ -177,7 +176,7 @@ function MemberList() {
         return;
       }
 
-      const response = await axios.delete(
+       await axios.delete(
         `${import.meta.env.VITE_BACKEND_URL}/api/gym/delete-member/${deleteSeatNumber}`,
         {
           headers: {

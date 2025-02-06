@@ -1,11 +1,6 @@
-import React, { ReactNode } from "react";
-import { HoverEffect } from "../components/ui/card-hover-effect";
-import { Navigate, useNavigate } from "react-router-dom";
-interface items {
-  title: string;
-  description: string;
-  link: ReactNode;
-}
+
+import {  useNavigate } from "react-router-dom";
+
 export const projects = [
   {
     title: "Library Management",
@@ -77,34 +72,6 @@ const solutions = [
       "Direct Communication with Members: Send notifications or updates via email or messaging platforms (e.g., WhatsApp).",
     ],
   },
-  // {
-  //   title: "FLAT",
-  //   icon: (
-  //     <svg
-  //       className="w-12 h-12"
-  //       fill="none"
-  //       stroke="currentColor"
-  //       viewBox="0 0 24 24"
-  //     >
-  //       <path
-  //         stroke-linecap="round"
-  //         stroke-linejoin="round"
-  //         stroke-width="2"
-  //         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-  //       ></path>
-  //     </svg>
-  //   ),
-  //   description:
-  //     "Comprehensive solution for residential property management and maintenance tracking.",
-  //   features: [
-  //     "Tenant CRUD Operations: Add, update, or remove tenant details, including lease agreements and rent amounts.",
-  //     "Rent Payment Notifications: Automatic reminders to tenants for rent due (30 days).",
-  //     "Individual Tenant Profiles: Dedicated pages displaying tenant information, payment history, and lease details.",
-  //     "Dues Highlighting: Automatically mark tenants with unpaid rent in red for visibility.",
-  //     "Visual Analytics for Landlords:Overview of rent collection and outstanding dues. Trends in tenant occupancy and changes over the past 6 months.",
-  //     "Direct Communication Tools: Send WhatsApp messages or emails directly to tenants from their profiles.",
-  //   ],
-  // },
   {
     title: "GYM",
     icon: (

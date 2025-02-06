@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { InfiniteMovingCards } from "../components/ui/infinite-moving-cards";
 
 const Testimonials = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [, setCurrentSlide] = useState(0);
 
   const testimonials = [
     {

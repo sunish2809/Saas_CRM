@@ -1,9 +1,6 @@
 "use client";
-import { motion } from "framer-motion";
-import React from "react";
-import { ImagesSlider } from "../components/ui/images-slider";
 import { AnimatedTooltip } from "../components/ui/animated-tooltip";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Navbar from "./Navbar";
 const people = [
@@ -42,13 +39,7 @@ const people = [
     image:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3540&q=80",
   }
-  // {
-  //   id: 6,
-  //   name: "Dora",
-  //   designation: "The Explorer",
-  //   image:
-  //     "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3534&q=80",
-  // },
+
 ];
 
 const Hero = () => {
@@ -62,11 +53,6 @@ const Hero = () => {
       behavior: 'smooth'
     });
   }
-  const images = [
-    "https://images.unsplash.com/photo-1485433592409-9018e83a1f0d?q=80&w=1814&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1483982258113-b72862e6cff6?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1482189349482-3defd547e0e9?q=80&w=2848&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  ];
   return (
 
     <>
@@ -95,9 +81,7 @@ const Hero = () => {
               <button onClick={()=>navigate('/get-started')} className="bg-[#146eb4]-600 bg-[#146eb4] hover:bg-[#0b1d2b] text-white px-8 py-3 rounded-lg  transition-all text-lg font-semibold animate__animated animate__fadeInUp">
                 Get Started
               </button>
-              {/* <button  className="border-2 border-gray-300 text-black px-8 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all text-lg font-semibold animate__animated animate__fadeInUp animate__delay-1s">
-                View Solutions
-              </button> */}
+ 
               <a href="#solutions" onClick={handleScroll} className="border-2 border-gray-300 text-black px-8 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all text-lg font-semibold animate__animated animate__fadeInUp animate__delay-1s">
                 View Solutions
               </a>
