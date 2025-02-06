@@ -52,7 +52,7 @@ const Analytics = () => {
       try {
         const token = localStorage.getItem("token"); // Retrieve token from local storage
         const response = await axios.get(
-          "http://localhost:3000/api/library/get-all-members",
+          `${import.meta.env.VITE_BACKEND_URL}/api/library/get-all-members`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Add token to headers
@@ -270,7 +270,7 @@ const Analytics = () => {
       try {
         const token = localStorage.getItem("token"); // Retrieve token from local storage
         const response = await axios.get(
-          "http://localhost:3000/api/library/get-all-members",
+          `${import.meta.env.VITE_BACKEND_URL}/api/library/get-all-members`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Add token to headers
@@ -295,7 +295,7 @@ const Analytics = () => {
 
         // Fetch deleted members
         const deletedMembersResponse = await axios.get(
-          "http://localhost:3000/api/library/get-deleted-member",
+          `${import.meta.env.VITE_BACKEND_URL}/api/library/get-deleted-member`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -384,7 +384,7 @@ const Analytics = () => {
       try {
         const token = localStorage.getItem("token"); // Retrieve token from local storage
         const response = await axios.get(
-          "http://localhost:3000/api/library/get-all-members",
+          `${import.meta.env.VITE_BACKEND_URL}/api/library/get-all-members`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Add token to headers

@@ -44,7 +44,7 @@ function MemberList() {
       try {
         const token = localStorage.getItem("token"); // or however you store your token
         const response = await axios.get(
-          "http://localhost:3000/api/library/get-all-members",
+          `${import.meta.env.VITE_BACKEND_URL}/api/library/get-all-members`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Include the token in the headers
@@ -112,7 +112,7 @@ function MemberList() {
       );
       if (inactiveMembers.length > 0) {
         await axios.post(
-          "http://localhost:3000/api/send-sms",
+          `${import.meta.env.VITE_BACKEND_URL}/api/send-sms`,
           { members: inactiveMembers },
           {
             headers: {
@@ -180,7 +180,7 @@ function MemberList() {
       }
 
       const response = await axios.delete(
-        `http://localhost:3000/api/library/delete-member/${deleteSeatNumber}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/library/delete-member/${deleteSeatNumber}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

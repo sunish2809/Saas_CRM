@@ -36,7 +36,7 @@ const MemberProfileLibrary: FC = () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          `http://localhost:3000/api/library/get-member/${memberId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/library/get-member/${memberId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

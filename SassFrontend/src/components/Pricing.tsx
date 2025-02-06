@@ -258,7 +258,7 @@ const Pricing: FC = () => {
   
       // ✅ Create Razorpay order
       const { data } = await axios.post(
-        "http://localhost:3000/api/payment/create-order",
+        `${import.meta.env.VITE_BACKEND_URL}/api/payment/create-order`,
         { amount: numericAmount },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -279,7 +279,7 @@ const Pricing: FC = () => {
         handler: async function (response: any) {
           try {
             const verifyRes = await axios.post(
-              "http://localhost:3000/api/payment/verify-payment",
+              `${import.meta.env.VITE_BACKEND_URL}/api/payment/verify-payment`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,

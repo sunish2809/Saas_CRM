@@ -27,7 +27,7 @@ const Settings: FC = () => {
     try{
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        "http://localhost:3000/api/owner/update-owner",
+        `${import.meta.env.VITE_BACKEND_URL}/api/owner/update-owner`,
         requestData,
         {
           headers: {

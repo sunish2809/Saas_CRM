@@ -26,7 +26,7 @@ const GymDashboard = () => {
         }
 
         const response = await axios.get(
-          "http://localhost:3000/api/owner/get-owner",
+          `${import.meta.env.VITE_BACKEND_URL}/api/owner/get-owner`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 

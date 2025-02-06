@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api'; // Update with your backend URL
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`; // Update with your backend URL
 
 interface SignUpData {
   email: string;

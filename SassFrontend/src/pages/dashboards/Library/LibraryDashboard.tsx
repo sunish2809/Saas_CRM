@@ -8,85 +8,6 @@ import AddMember from "./AddMember";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// function LibraryDashboard() {
-//   const navigate = useNavigate();
-//   const [trialStatus, setTrialStatus] = useState("");
-//   const [membershipType, setMembershipType] = useState("");
-
-//   useEffect(() => {
-//     const fetchUser = async () => {
-//       try {
-//         const token = localStorage.getItem("token");
-//         const response = await axios.get(
-//           "http://localhost:3000/api/owner/get-owner",
-//           { headers: { Authorization: `Bearer ${token}` } }
-//         );
-
-//         const user = response.data;
-//         setTrialStatus(user.trialStatus);
-//         setMembershipType(user.membershipType);
-
-//         if (user.trialStatus === "EXPIRED") {
-//           alert("Your trial has expired! Please upgrade your plan.");
-//         }
-//       } catch (error) {
-//         console.error("Error fetching user:", error);
-//       }
-//     };
-
-//     fetchUser();
-//   }, []);
-
-//   return (
-//     <div className="flex">
-//       <Sidebar />
-//       <main className="flex-1 ml-64 bg-[#F0F0D7] overflow-y-auto">
-//         {trialStatus === "TRIAL" && (
-//           <div className="flex align-middle">
-//             <div className="bg-yellow-200 text-yellow-800 p-4 mt-4 rounded">
-//               Your trial ends soon! Upgrade now to continue using the platform.
-//             </div>
-//             <b>
-//               <button
-//                 className="ml-auto text-400 p-4 mt-4 rounded"
-//                 onClick={() => navigate("/pricing")}
-//               >
-//                 Upgrade
-//               </button>
-//             </b>
-//           </div>
-//         )}
-
-//         {trialStatus === "EXPIRED " && (
-//           <div className="flex align-middle">
-//             <div className="bg-red-200 text-red-800 p-4 mt-4 rounded">
-//               Your trial has expired! Upgrade your plan to regain access.
-//             </div>
-//             <b>
-//               <button
-//                 className="ml-auto text-400 p-4 mt-4 rounded"
-//                 onClick={() => navigate("/pricing")}
-//               >
-//                 Upgrade
-//               </button>
-//             </b>
-//           </div>
-//         )}
-//         <Routes>
-//           <Route path="analytics" element={<Analytics />} />
-//           <Route path="members" element={<MemberList />} />
-//           <Route path="add-member" element={<AddMember />} />
-//           <Route path="settings" element={<Settings />} />
-//           {/* Redirect root path to analytics */}
-//           <Route path="/" element={<Navigate to="analytics" replace />} />
-//         </Routes>
-//       </main>
-//     </div>
-//   );
-// }
-// export default LibraryDashboard;
-
-
 
 
 function LibraryDashboard() {
@@ -104,7 +25,7 @@ function LibraryDashboard() {
         }
 
         const response = await axios.get(
-          "http://localhost:3000/api/owner/get-owner",
+          `${import.meta.env.VITE_BACKEND_URL}/api/owner/get-owner`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 

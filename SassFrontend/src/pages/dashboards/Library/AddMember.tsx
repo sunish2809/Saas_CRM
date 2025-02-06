@@ -208,7 +208,7 @@ const AddMember: React.FC = () => {
       }
 
       const response = await axios.delete(
-        `http://localhost:3000/api/library/delete-member/${deleteSeatNumber}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/library/delete-member/${deleteSeatNumber}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -260,7 +260,7 @@ const AddMember: React.FC = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/api/library/add-member",
+        `${import.meta.env.VITE_BACKEND_URL}/api/library/add-member`,
         formData,
         {
           headers: {
@@ -311,7 +311,7 @@ const AddMember: React.FC = () => {
         membershipType: updateFormData.membershipType,
       };
       const response = await axios.put(
-        "http://localhost:3000/api/library/update-member",
+        `${import.meta.env.VITE_BACKEND_URL}/api/library/update-member`,
         requestData,
         {
           headers: {
@@ -419,7 +419,7 @@ const AddMember: React.FC = () => {
       //const transformedData = transformToFormData(fileData);
       const transformedData = fileData
       const response = await axios.post(
-        "http://localhost:3000/api/library/upload-members",
+        `${import.meta.env.VITE_BACKEND_URL}/api/library/upload-members`,
         transformedData,
         {
           headers: {

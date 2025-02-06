@@ -191,7 +191,7 @@ const MemberProfile: FC = () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          `http://localhost:3000/api/gym/get-member/${memberId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/gym/get-member/${memberId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

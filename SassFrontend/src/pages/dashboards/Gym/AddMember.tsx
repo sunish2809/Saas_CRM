@@ -221,7 +221,7 @@ const AddMember: FC = () => {
       if (!token) return navigate("/login");
 
       const response = await axios.post(
-        "http://localhost:3000/api/gym/add-member",
+        `${import.meta.env.VITE_BACKEND_URL}/api/gym/add-member`,
         formData,
         {
           headers: {
@@ -254,7 +254,7 @@ const AddMember: FC = () => {
       if (!token) return navigate("/login");
 
       await axios.put(
-        "http://localhost:3000/api/gym/update-member",
+        `${import.meta.env.VITE_BACKEND_URL}/api/gym/update-member`,
         updateFormData,
         {
           headers: {
@@ -287,7 +287,7 @@ const AddMember: FC = () => {
       if (!token) return navigate("/login");
 
       await axios.delete(
-        `http://localhost:3000/api/gym/delete-member/${deleteMemberNumber}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/gym/delete-member/${deleteMemberNumber}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -329,7 +329,7 @@ const AddMember: FC = () => {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/login");
       await axios.post(
-        "http://localhost:3000/api/gym/upload-members",
+        `${import.meta.env.VITE_BACKEND_URL}/api/gym/upload-members`,
         fileData,
         {
           headers: {
