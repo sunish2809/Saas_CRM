@@ -208,7 +208,9 @@ const AddMember: React.FC = () => {
       }
 
       await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/api/library/delete-member/${deleteSeatNumber}`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/library/delete-member/${deleteSeatNumber}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -269,7 +271,6 @@ const AddMember: React.FC = () => {
           },
         }
       );
-
 
       navigate("/dashboard/library/members");
     } catch (error: any) {
@@ -351,10 +352,9 @@ const AddMember: React.FC = () => {
 
   // const transformToFormData = (data: any[]) => {
 
-
   //   // Transforming each record in the data array
   //   const transformedData = data.map((record: any) => ({
-      
+
   //     name: record.name,
   //     email: record.email,
   //     phone: record.phone,
@@ -397,8 +397,7 @@ const AddMember: React.FC = () => {
     };
     reader.readAsBinaryString(file);
   };
-  useEffect(() => {
-  }, [fileData]);
+  useEffect(() => {}, [fileData]);
 
   const handleFileSubmit = async () => {
     if (fileData.length === 0) {
@@ -417,7 +416,7 @@ const AddMember: React.FC = () => {
       }
 
       //const transformedData = transformToFormData(fileData);
-      const transformedData = fileData
+      const transformedData = fileData;
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/upload-members`,
         transformedData,
@@ -609,7 +608,7 @@ const AddMember: React.FC = () => {
               onChange={handleChange}
               className="mt-1 text-[#727D73] bg-[#D0DDD0] block w-full h-10 p-1 rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
             >
-              <option  value="">Select Gender</option>
+              <option value="">Select Gender</option>
               {genderTypes.map((type) => (
                 <option key={type} value={type}>
                   {type}
@@ -732,7 +731,9 @@ const AddMember: React.FC = () => {
       </form>
 
       <form onSubmit={handleUpdateSubmit} className="space-y-6">
-        <h2 className="text-2xl font-bold text-[#727D73] mb-6">Update Member</h2>
+        <h2 className="text-2xl font-bold text-[#727D73] mb-6">
+          Update Member
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Seat Number */}
           <div>
@@ -821,7 +822,9 @@ const AddMember: React.FC = () => {
       </form>
 
       <form className="space-y-6" onSubmit={handleDelete}>
-        <h2 className="text-2xl font-bold text-[#727D73] mb-6">Delete Member</h2>
+        <h2 className="text-2xl font-bold text-[#727D73] mb-6">
+          Delete Member
+        </h2>
         <div>
           <label className="block text-sm font-medium text-[#727D73]">
             Seat Number
@@ -847,7 +850,9 @@ const AddMember: React.FC = () => {
       </form>
 
       <div className="bg-[#D0DDD0] p-6 rounded-lg shadow-md mt-2">
-        <h2 className="text-2xl font-bold text-[#727D73] mb-6">Upload Library Members</h2>
+        <h2 className="text-2xl font-bold text-[#727D73] mb-6">
+          Upload Library Members
+        </h2>
 
         <div>
           <label
@@ -890,4 +895,3 @@ const AddMember: React.FC = () => {
 };
 
 export default AddMember;
-

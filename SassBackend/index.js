@@ -12,10 +12,26 @@ const paymentRoutes = require("./routes/paymentRoutes");
 //const routes = require('./routes/auth')
 dotenv.config();
 const app = express();
+const allowedOrigins = [
+  "https://www.managepro.net.in",
+  "https://managepro.net.in", // Allow both www and non-www versions
+];
+// app.use(
+//     cors({
+//       origin: process.env.FRONTEND_URL,
+//     })
+// );
 app.use(
-    cors({
-      origin: process.env.FRONTEND_URL,
-    })
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Required for authentication (cookies, tokens)
+  })
 );
 app.use(express.json());
 ConnectDB();
