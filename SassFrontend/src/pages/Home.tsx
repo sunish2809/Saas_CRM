@@ -11,10 +11,10 @@ import Footer from '../components/Footer';
 import LandingPrice from '../components/LandingPrice';
 
 const Home = () => {
-  useEffect(() => {
-    // Add any initialization code here
-    document.title = 'ManagePro - Business Management Solutions';
-  }, []);
+  // useEffect(() => {
+  //   // Add any initialization code here
+  //   document.title = 'ManagePro - Business Management Solutions';
+  // }, []);
 
   return (
     <div className="antialiased text-gray-800 min-h-screen flex flex-col">
