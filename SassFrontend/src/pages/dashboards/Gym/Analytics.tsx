@@ -441,7 +441,15 @@ const Analytics: FC = () => {
           <p className="text-2xl text-[#727D73] font-bold">
             {analyticsData.totalMembers}
           </p>
-          <ReactFusioncharts {...chartConfigs.totalMembers} />
+          {/* Show loader while data is loading */}
+          {/* {!chartConfigs.totalMembers.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...chartConfigs.totalMembers} />
+          )} */}
+          {/* <ReactFusioncharts {...chartConfigs.totalMembers} /> */}
         </div>
 
         {/* Total Revenue */}
@@ -452,7 +460,14 @@ const Analytics: FC = () => {
           <p className="text-2xl text-[#727D73] font-bold">
             ₹{analyticsData.totalRevenue}
           </p>
-          <ReactFusioncharts {...chartConfigs.revenue} />
+          {/* {!chartConfigs.revenue.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...chartConfigs.revenue} />
+          )} */}
+          {/* <ReactFusioncharts {...chartConfigs.revenue} /> */}
         </div>
 
         {/* Membership Distribution */}
@@ -460,7 +475,13 @@ const Analytics: FC = () => {
           <h3 className="text-xl text-[#727D73] font-semibold">
             Membership Distribution
           </h3>
-          <ReactFusioncharts {...chartConfigs.membershipDistribution} />
+          {!chartConfigs.membershipDistribution.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...chartConfigs.membershipDistribution} />
+          )}
         </div>
 
         {/* Member Add/Delete Trends */}
@@ -489,7 +510,13 @@ const Analytics: FC = () => {
               ))}
             </select>
           </div>
-          <ReactFusioncharts {...addDeleteChart.addDeleteTrends} />
+          {!addDeleteChart.addDeleteTrends.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...addDeleteChart.addDeleteTrends} />
+          )}
         </div>
 
         {/* Monthly Payment Trends */}
@@ -518,7 +545,13 @@ const Analytics: FC = () => {
               ))}
             </select>
           </div>
-          <ReactFusioncharts {...monthlyTrendChart.monthlyPaymentTrends} />
+          {!monthlyTrendChart.monthlyPaymentTrends.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...monthlyTrendChart.monthlyPaymentTrends} />
+          )}
         </div>
       </div>
     </div>

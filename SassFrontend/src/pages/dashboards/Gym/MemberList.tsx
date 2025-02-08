@@ -266,9 +266,8 @@ function MemberList() {
               <tr
                 key={member.id}
                 className="hover:bg-gray-50 cursor-pointer bg-[#D0DDD0]"
-                onClick={() => navigate(`${member.id}`)}
               >
-                <td className="px-6 py-4">{member.name}</td>
+                <td className="px-6 py-4" onClick={() => navigate(`${member.id}`)}>{member.name}</td>
                 <td className="px-6 py-4">{member.memberNumber}</td>
                 <td className="px-6 py-4">{member.package}</td>
                 <td className="px-6 py-4">{member.paymentDate}</td>

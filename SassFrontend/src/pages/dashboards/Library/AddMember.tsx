@@ -835,7 +835,7 @@ const AddMember: React.FC = () => {
           />
         </div>
 
-        <div className="flex justify-end mt-5">
+        <div className="flex justify-end ">
           <button
             type="submit"
             disabled={loading}
@@ -846,26 +846,26 @@ const AddMember: React.FC = () => {
         </div>
       </form>
 
-      <div className="space-y-6  p-2 m-2 h-32 bg-[#D0DDD0] shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold text-[#727D73] mb-2">Upload Library Members</h2>
+      <div className="bg-[#D0DDD0] p-6 rounded-lg shadow-md mt-2">
+        <h2 className="text-2xl font-bold text-[#727D73] mb-6">Upload Library Members</h2>
 
         <div>
           <label
             htmlFor="file-upload"
             className="block text-sm font-medium text-[#727D73]"
           >
-            Upload File
+            Upload Excel File (.xlsx, .xls)
           </label>
           <input
             id="file-upload"
             type="file"
             accept=".xlsx, .xls"
             onChange={handleFileUpload}
-            className="mt-1 block w-full rounded-md border-[#727D73] shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
+            className="block w-full text-sm text-[#727D73] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#727D73] file:text-white hover:file:bg-[#AAB99A]"
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-2">
           <button
             onClick={handleFileSubmit}
             disabled={loading}
@@ -890,3 +890,4 @@ const AddMember: React.FC = () => {
 };
 
 export default AddMember;
+

@@ -468,22 +468,41 @@ const Analytics = () => {
           <p className="text-2xl text-[#727D73] font-bold">
             {analyticsData.totalMembers}
           </p>
-          <ReactFusioncharts {...chartConfigs.totalMembers} />
+          {/* Show loader while data is loading */}
+          {/* {!chartConfigs.totalMembers.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...chartConfigs.totalMembers} />
+          )} */}
         </div>
         <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
           <h3 className="text-xl text-[#727D73] font-semibold">
             Total Revenue
           </h3>
           <p className="text-2xl text-[#727D73] font-bold">
-            {analyticsData.totalRevenue}
+           ₹{analyticsData.totalRevenue}
           </p>
-          <ReactFusioncharts {...chartConfigs.revenue} />
+          {/* {!chartConfigs.revenue.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...chartConfigs.revenue} />
+          )} */}
         </div>
         <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
           <h3 className="text-xl text-[#727D73] font-semibold">
             Membership Distribution
           </h3>
-          <ReactFusioncharts {...chartConfigs.membershipDistribution} />
+          {!chartConfigs.membershipDistribution.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...chartConfigs.membershipDistribution} />
+          )}
         </div>
 
         <div className="bg-[#D0DDD0] rounded-lg p-6">
@@ -511,7 +530,13 @@ const Analytics = () => {
               ))}
             </select>
           </div>
-          <ReactFusioncharts {...addDeleteChart.addDeleteTrends} />
+          {!addDeleteChart.addDeleteTrends.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...addDeleteChart.addDeleteTrends} />
+          )}
         </div>
         <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6 col-span-full">
           <div className="mb-4">
@@ -538,8 +563,13 @@ const Analytics = () => {
               ))}
             </select>
           </div>
-
-          <ReactFusioncharts {...monthlyTrendChart.monthlyPaymentTrends} />
+          {!monthlyTrendChart.monthlyPaymentTrends.dataSource ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <ReactFusioncharts {...monthlyTrendChart.monthlyPaymentTrends} />
+          )}
         </div>
       </div>
     </div>

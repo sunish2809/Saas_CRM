@@ -289,8 +289,8 @@ function MemberList() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentMembers.map((member) => (
-              <tr key={member.id} className="hover:bg-gray-50 cursor-pointer bg-[#D0DDD0]" onClick={() => navigate(`${member.id}`)}>
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr key={member.id} className="hover:bg-gray-50 cursor-pointer bg-[#D0DDD0]">
+                <td className="px-6 py-4 whitespace-nowrap" onClick={() => navigate(`${member.id}`)}>
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
                       <img

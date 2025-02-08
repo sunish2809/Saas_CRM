@@ -49,8 +49,13 @@ const GymDashboard = () => {
   }, [navigate]);
 
   if (loading) {
-    return <div>Loading...</div>; // Show a loading state while fetching data
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-12 h-12 border-4 border-gray-300 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
+    );
   }
+  
 
   // **If the trial is expired, prevent rendering the dashboard**
   if (trialStatus === "EXPIRED") {
