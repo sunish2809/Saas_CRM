@@ -870,6 +870,12 @@ const AddMember: React.FC = () => {
           />
         </div>
 
+        <div className="mt-4">
+          <a href="../../../../public/MemberAnalyticsDatanew.xlsx" download className="text-[#727D73] hover:underline">
+            Download Sample Excel File
+          </a>
+        </div>
+
         <div className="flex justify-end mt-2">
           <button
             onClick={handleFileSubmit}
@@ -890,6 +896,8 @@ const AddMember: React.FC = () => {
           </div>
         )}
       </div>
+
+      
     </div>
   );
 };

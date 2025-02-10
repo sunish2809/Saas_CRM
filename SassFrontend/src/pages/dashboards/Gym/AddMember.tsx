@@ -733,11 +733,17 @@ const AddMember: FC = () => {
             />
           </div>
 
+          <div className="mt-4">
+            <a href="../../../../public/GymDataFinal.xlsx" download className="text-[#727D73] hover:underline">
+              Download Sample Excel File
+            </a>
+          </div>
+
           <button
             type="button"
             onClick={handleFileSubmit}
             disabled={loading}
-            className="px-6 py-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] transition-colors"
+            className="px-6 py-2 mt-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] transition-colors"
           >
             {loading ? "Uploading..." : "Upload File"}
           </button>
