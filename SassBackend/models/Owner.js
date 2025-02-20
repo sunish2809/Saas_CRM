@@ -50,7 +50,7 @@ const ownerSchema = new mongoose.Schema(
     },
     trialStatus: {
       type: String,
-      enum: ["TRIAL", "MEMBER"],
+      enum: ["TRIAL", "MEMBER","EXPIRED"],
       default: "TRIAL",
     },
     trialStartDate: { type: Date, default: Date.now },

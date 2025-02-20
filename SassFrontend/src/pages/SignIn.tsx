@@ -39,11 +39,19 @@ function SignIn() {
       
       // Check trial status
       if (user.trialStatus === "EXPIRED") {
+        console.log("code is here")
         alert("Your trial has expired! Please upgrade your plan.");
+        navigate("/")
+
+      }
+      else{
+        // Navigate to the dashboard
+      navigate(`/dashboard/${businessType?.toLowerCase()}`);
+
       }
 
       // Navigate to the dashboard
-      navigate(`/dashboard/${businessType?.toLowerCase()}`);
+      //navigate(`/dashboard/${businessType?.toLowerCase()}`);
       
     } catch (err: any) {
       console.error("SignIn error:", err);

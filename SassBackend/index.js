@@ -14,7 +14,9 @@ dotenv.config();
 const app = express();
 const allowedOrigins = [
   "https://www.managepro.net.in",
-  "https://managepro.net.in", // Allow both www and non-www versions
+  "https://managepro.net.in",
+  "http://localhost:5173",
+   // Allow both www and non-www versions
 ];
 // app.use(
 //     cors({
