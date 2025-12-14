@@ -1,8 +1,8 @@
 const Footer = () => {
     const footerSections = {
       solutions: ["Library Management", "Flat Management", "Gym Management", "Custom Solutions"],
-      company: ["About Us", "Careers", "Blog", "Press"],
-      support: ["Help Center", "Documentation", "API Status", "Contact Us"]
+      // company: ["About Us", "Careers", "Blog", "Press"],
+      // support: ["Help Center", "Documentation", "API Status", "Contact Us"]
     };
   
     return (
