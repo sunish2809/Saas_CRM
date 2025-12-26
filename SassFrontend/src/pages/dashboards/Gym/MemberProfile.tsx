@@ -1,335 +1,234 @@
-// import { FC } from 'react';
-// import { useParams } from 'react-router-dom';
-
-// interface MemberProfile {
-//   id: string;
-//   name: string;
-//   email: string;
-//   phone: string;
-//   joinDate: string;
-//   membershipType: string;
-//   status: string;
-//   lastPayment: string;
-//   attendance: {
-//     date: string;
-//     checkIn: string;
-//     checkOut: string;
-//   }[];
-//   analytics: {
-//     attendanceRate: number;
-//     avgDuration: string;
-//     preferredTime: string;
-//     lastVisit: string;
-//   };
-// }
-
-// const MemberProfile: FC = () => {
-//   const { memberId } = useParams<{ memberId: string }>();
-  
-//   // Mock data - replace with actual API call
-//   const memberData: MemberProfile = {
-//     id: "M001",
-//     name: "John Doe",
-//     email: "john@example.com",
-//     phone: "+1 (555) 123-4567",
-//     joinDate: "Jan 15, 2024",
-//     membershipType: "Premium",
-//     status: "Active",
-//     lastPayment: "Feb 1, 2024",
-//     attendance: [
-//       { date: "2024-02-15", checkIn: "09:00 AM", checkOut: "10:30 AM" },
-//       // Add more attendance records
-//     ],
-//     analytics: {
-//       attendanceRate: 85,
-//       avgDuration: "1.5 hours",
-//       preferredTime: "Morning",
-//       lastVisit: "2 days ago"
-//     }
-//   };
-
-//   return (
-//     <section className="p-6">
-//       <div className="max-w-7xl mx-auto space-y-6">
-//         {/* Member Header */}
-//         <div className="bg-white rounded border border-neutral-200/30">
-//           <div className="p-6 flex items-center justify-between">
-//             <div className="flex items-center space-x-4">
-//               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-//                 <span className="text-2xl font-semibold text-blue-600">
-//                   {memberData.name.charAt(0)}
-//                 </span>
-//               </div>
-//               <div>
-//                 <h2 className="text-2xl font-semibold">{memberData.name}</h2>
-//                 <p className="text-gray-500">Member ID: {memberData.id}</p>
-//               </div>
-//             </div>
-//             <span className={`px-3 py-1 rounded-full text-sm ${
-//               memberData.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-//             }`}>
-//               {memberData.status}
-//             </span>
-//           </div>
-//         </div>
-
-//         {/* Member Info and Analytics Grid */}
-//         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-//           {/* Member Information */}
-//           <div className="lg:col-span-1 bg-white rounded border border-neutral-200/30 p-6">
-//             <h3 className="text-lg font-semibold mb-4">Member Information</h3>
-//             <div className="space-y-4">
-//               <div>
-//                 <label className="text-sm text-gray-500">Email</label>
-//                 <p>{memberData.email}</p>
-//               </div>
-//               <div>
-//                 <label className="text-sm text-gray-500">Phone</label>
-//                 <p>{memberData.phone}</p>
-//               </div>
-//               <div>
-//                 <label className="text-sm text-gray-500">Join Date</label>
-//                 <p>{memberData.joinDate}</p>
-//               </div>
-//               <div>
-//                 <label className="text-sm text-gray-500">Membership Type</label>
-//                 <p>{memberData.membershipType}</p>
-//               </div>
-//               <div>
-//                 <label className="text-sm text-gray-500">Last Payment</label>
-//                 <p>{memberData.lastPayment}</p>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Member Analytics */}
-//           <div className="lg:col-span-2 bg-white rounded border border-neutral-200/30 p-6">
-//             <h3 className="text-lg font-semibold mb-4">Member Analytics</h3>
-//             <div className="grid grid-cols-2 gap-4 mb-6">
-//               <div className="p-4 bg-blue-50 rounded">
-//                 <h4 className="text-sm text-gray-500">Attendance Rate</h4>
-//                 <p className="text-2xl font-semibold text-blue-600">{memberData.analytics.attendanceRate}%</p>
-//               </div>
-//               <div className="p-4 bg-green-50 rounded">
-//                 <h4 className="text-sm text-gray-500">Avg. Duration</h4>
-//                 <p className="text-2xl font-semibold text-green-600">{memberData.analytics.avgDuration}</p>
-//               </div>
-//             </div>
-            
-//             {/* Attendance Chart */}
-//             <div className="h-64 bg-neutral-50 rounded mb-6">
-//               {/* Add your chart component here */}
-//             </div>
-
-//             {/* Recent Attendance */}
-//             <h4 className="font-semibold mb-2">Recent Attendance</h4>
-//             <div className="overflow-x-auto">
-//               <table className="w-full">
-//                 <thead className="bg-neutral-50">
-//                   <tr>
-//                     <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Date</th>
-//                     <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Check In</th>
-//                     <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Check Out</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-neutral-200">
-//                   {memberData.attendance.map((record, index) => (
-//                     <tr key={index}>
-//                       <td className="px-4 py-2">{record.date}</td>
-//                       <td className="px-4 py-2">{record.checkIn}</td>
-//                       <td className="px-4 py-2">{record.checkOut}</td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// };
-
-// export default MemberProfile;
-
-
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FC, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { ArrowLeft, Loader } from 'lucide-react';
 
-interface PaymentHistory {
-  amount: number;
-  paymentDate: string;
-  _id: string;
-}
-
-interface MemberProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  aadharNumber: string;
-  emergencyContact: string;
-  gender: string;
-  dateOfBirth: string;
-  joinDate: string;
-  membershipType: string;
-  status: string;
-  paymentHistory: PaymentHistory[];
-  memberNumber:number;
-}
-
-const MemberProfile: FC = () => {
+const MemberProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
-  const [memberData, setMemberData] = useState<MemberProfile | null>(null);
-  const [status, SetStatus] = useState("")
-
+  const navigate = useNavigate();
+  const [memberData, setMemberData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMemberDetails = async () => {
+    const fetchMemberData = async () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/gym/get-member/${memberId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+
         setMemberData(response.data);
-
-        const status= memberData?.paymentHistory[0]?.paymentDate
-        ? (() => {
-            const lastPaymentDate = new Date(
-                memberData.paymentHistory[0].paymentDate
-            );
-            const expiryDate = new Date(lastPaymentDate);
-            expiryDate.setDate(lastPaymentDate.getDate() + 30);
-
-            return new Date() > expiryDate ? "Inactive" : "Active";
-            })()
-        : "Not Active";
-        SetStatus(status)
       } catch (error) {
-        console.error('Error fetching member details:', error);
+        console.error('Error fetching member data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchMemberDetails();
+    if (memberId) {
+      fetchMemberData();
+    }
   }, [memberId]);
 
-  if (!memberData) {
-
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="w-12 h-12 border-4 border-gray-300 border-t-indigo-500 rounded-full animate-spin"></div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="flex flex-col items-center gap-4">
+          <Loader className="w-8 h-8 text-orange-600 animate-spin" />
+          <p className="text-gray-600">Loading member details...</p>
         </div>
-      );
-
-    
+      </div>
+    );
   }
 
+  if (!memberData) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-gray-600 mb-4">Member not found</p>
+        <button
+          onClick={() => navigate('/dashboard/gym/members')}
+          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+        >
+          Back to Members
+        </button>
+      </div>
+    );
+  }
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const getStatus = () => {
+    if (!memberData.paymentHistory[0]?.paymentDate) return 'Not Active';
+    const lastPaymentDate = new Date(memberData.paymentHistory[0].paymentDate);
+    const expiryDate = new Date(lastPaymentDate);
+    expiryDate.setDate(lastPaymentDate.getDate() + 30);
+    return new Date() > expiryDate ? 'Inactive' : 'Active';
+  };
+
+  const status = getStatus();
+
   return (
-    <section className="p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Member Header */}
-        <div className="bg-white rounded border border-neutral-200/30">
-          <div className="p-6 flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-semibold text-blue-600">
-                  {memberData.name.charAt(0)}
-                </span>
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold">{memberData.name}</h2>
-                <p className="text-gray-500">Member ID: {memberData.memberNumber}</p>
-              </div>
-            </div>
-            <span
-              className={`px-3 py-1 rounded-full text-sm ${
-                memberData.status === 'Active'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
-              }`}
-            >
-              {status}
-            </span>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={() => navigate('/dashboard/gym/members')}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-6 h-6 text-gray-600" />
+        </button>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Member Profile</h1>
+          <p className="text-gray-600 mt-1">View and manage member details</p>
         </div>
+      </div>
 
-        {/* Member Info and Payment History */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Member Information */}
-          <div className="bg-white rounded border border-neutral-200/30 p-6">
-            <h3 className="text-lg font-semibold mb-4">Member Information</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm text-gray-500">Email</label>
-                <p>{memberData.email}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Phone</label>
-                <p>{memberData.phone}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Address</label>
-                <p>{memberData.address}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Aadhaar Number</label>
-                <p>{memberData.aadharNumber}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Emergency Contact</label>
-                <p>{memberData.emergencyContact}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Gender</label>
-                <p>{memberData.gender}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Date of Birth</label>
-                <p>{new Date(memberData.dateOfBirth).toLocaleDateString()}</p>
-              </div>
-              {/* <div>
-                <label className="text-sm text-gray-500">Join Date</label>
-                <p>{new Date(memberData.createdAt).toLocaleDateString()}</p>
-              </div> */}
-              <div>
-                <label className="text-sm text-gray-500">Membership Type</label>
-                <p>{memberData.membershipType}</p>
-              </div>
-            </div>
+      {/* Profile Header Card */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+            {getInitials(memberData.name)}
           </div>
-
-          {/* Payment History */}
-          <div className="bg-white rounded border border-neutral-200/30 p-6">
-            <h3 className="text-lg font-semibold mb-4">Payment History</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Amount</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Payment Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-200">
-                  {memberData.paymentHistory.map((record) => (
-                    <tr key={record._id}>
-                      <td className="px-4 py-2">₹{record.amount}</td>
-                      <td className="px-4 py-2">{new Date(record.paymentDate).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-gray-900">{memberData.name}</h2>
+            <p className="text-gray-600 mt-1">ID: {memberData.seatNumber}</p>
+            <div className="flex flex-wrap items-center gap-3 mt-3">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium border ${
+                status === 'Active'
+                  ? 'bg-green-50 text-green-700 border-green-200'
+                  : 'bg-red-50 text-red-700 border-red-200'
+              }`}>
+                {status}
+              </span>
+              <span className="text-sm text-gray-600">
+                {memberData.membershipType || 'N/A'} Plan
+              </span>
             </div>
           </div>
         </div>
       </div>
-    </section>
+
+      {/* Two Column Layout */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Personal Information */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-5">Personal Information</h3>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Email</p>
+              <p className="text-gray-900 font-medium">{memberData.email || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Phone</p>
+              <p className="text-gray-900 font-medium">{memberData.phone || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Date of Birth</p>
+              <p className="text-gray-900 font-medium">
+                {memberData.dateOfBirth ? new Date(memberData.dateOfBirth).toLocaleDateString() : 'N/A'}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Gender</p>
+              <p className="text-gray-900 font-medium">{memberData.gender || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Address</p>
+              <p className="text-gray-900 font-medium">{memberData.address || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Membership Information */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-5">Membership Information</h3>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Membership Type</p>
+              <p className="text-gray-900 font-medium">{memberData.membershipType || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Join Date</p>
+              <p className="text-gray-900 font-medium">
+                {memberData.createdAt ? new Date(memberData.createdAt).toLocaleDateString() : 'N/A'}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Status</p>
+              <p className={`font-medium ${status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
+                {status}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Emergency Contact</p>
+              <p className="text-gray-900 font-medium">{memberData.emergencyContact || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Payment History */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-5">Payment History</h3>
+        {memberData.paymentHistory && memberData.paymentHistory.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr className="border-b border-gray-200">
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {memberData.paymentHistory.map((payment: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {new Date(payment.paymentDate).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                      ₹{payment.amount.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                        Completed
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-600 text-sm">No payment history available</p>
+        )}
+      </div>
+
+      {/* Additional Information */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-5">Additional Information</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Aadhar Number</p>
+            <p className="text-gray-900 font-medium">{memberData.aadharNumber || 'N/A'}</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Total Payments</p>
+            <p className="text-gray-900 font-medium">
+              ₹{memberData.paymentHistory?.reduce((sum: number, p: any) => sum + p.amount, 0).toLocaleString() || '0'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

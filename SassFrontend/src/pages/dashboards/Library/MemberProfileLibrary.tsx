@@ -95,7 +95,7 @@ const MemberProfileLibrary: FC = () => {
             <span
               className={`px-3 py-1 rounded-full text-sm ${
                 memberData.status === 'Active'
-                  ? 'bg-green-100 text-green-800'
+                  ? 'bg-teal-100 text-teal-800'
                   : 'bg-red-100 text-red-800'
               }`}
             >
@@ -138,10 +138,6 @@ const MemberProfileLibrary: FC = () => {
                 <label className="text-sm text-gray-500">Date of Birth</label>
                 <p>{new Date(memberData.dateOfBirth).toLocaleDateString()}</p>
               </div>
-              {/* <div>
-                <label className="text-sm text-gray-500">Join Date</label>
-                <p>{new Date(memberData.createdAt).toLocaleDateString()}</p>
-              </div> */}
               <div>
                 <label className="text-sm text-gray-500">Membership Type</label>
                 <p>{memberData.membershipType}</p>

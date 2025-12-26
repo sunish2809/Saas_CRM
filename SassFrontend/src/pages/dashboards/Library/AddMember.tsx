@@ -1,903 +1,484 @@
-import React, { useState, FormEvent, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import * as XLSX from "xlsx";
+import axios from 'axios';
+import { useState } from 'react';
+import { Plus, Loader, Upload, Download, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
-interface MemberFormData {
+interface AddMemberFormState {
   name: string;
   email: string;
   phone: string;
+  membershipType: string;
+  dateOfBirth: string;
+  gender: string;
   address: string;
-  seatNumber: string;
   aadharNumber: string;
   emergencyContact: string;
-  gender: string;
-  dateOfBirth: string;
-  membershipType: string;
-  paymentHistory: {
-    amount: number;
-    paymentDate: string;
-  }[];
-}
-interface UpdateFormData {
-  seatNumber: string;
-  membershipType: string;
-  paymentHistory: {
-    amount: number;
-    paymentDate: string;
-  };
 }
 
-interface FormError {
-  field: keyof MemberFormData | keyof UpdateFormData;
-  message: string;
-}
+const AddMember = () => {
+  const [formData, setFormData] = useState<AddMemberFormState>({
+    name: '',
+    email: '',
+    phone: '',
+    membershipType: 'Basic',
+    dateOfBirth: '',
+    gender: '',
+    address: '',
+    aadharNumber: '',
+    emergencyContact: '',
+  });
 
-const AddMember: React.FC = () => {
-  const navigate = useNavigate();
+  const [memberLimits, setMemberLimits] = useState({ current: 0, limit: 0, remaining: null, canAddMore: false, isUnlimited: false });
+  const [error, setError] = useState<{ message: string } | null>(null);
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<FormError[]>([]);
-  const [updateErrors, setUpdateErrors] = useState<FormError[]>([]);
-  const [, SetDeleteError] = useState("");
-  const [fileData, setFileData] = useState<any[]>([]);
-  const [FileErrors, setFileErrors] = useState<any[]>([]);
-  const [formData, setFormData] = useState<MemberFormData>({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    seatNumber: "",
-    aadharNumber: "",
-    emergencyContact: "",
-    gender: "",
-    dateOfBirth: "",
-    membershipType: "Basic",
-    paymentHistory: [
-      {
-        amount: 0,
-        paymentDate: new Date().toISOString(),
-      },
-    ],
-  });
-  const [updateFormData, setUpdateFormData] = useState<UpdateFormData>({
-    seatNumber: "",
-    paymentHistory: {
-      amount: 0,
-      paymentDate: new Date().toISOString().split("T")[0],
-    },
-    membershipType: "Basic",
-  });
-  const [deleteSeatNumber, setDeleteSeatNumber] = useState("");
+  const [uploadError, setUploadError] = useState('');
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const membershipTypes = ["Basic", "Standard", "Premium", "Annual"];
-  const genderTypes = ["Male", "Female", "Other"];
-
-  const validateForm = (): FormError[] => {
-    const errors: FormError[] = [];
-
-    // Required field validation
-    Object.entries(formData).forEach(([key, value]) => {
-      if (!value && key !== "paymentHistory") {
-        errors.push({
-          field: key as keyof MemberFormData,
-          message: `${key.charAt(0).toUpperCase() + key.slice(1)} is required`,
-        });
-      }
-    });
-
-    // Email validation
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (formData.email && !emailRegex.test(formData.email)) {
-      errors.push({
-        field: "email",
-        message: "Please enter a valid email address",
-      });
-    }
-
-    // Phone validation
-    const phoneRegex = /^\d{10}$/;
-    if (formData.phone && !phoneRegex.test(formData.phone)) {
-      errors.push({
-        field: "phone",
-        message: "Please enter a valid 10-digit phone number",
-      });
-    }
-
-    // Aadhar validation
-    const aadharRegex = /^\d{12}$/;
-    if (formData.aadharNumber && !aadharRegex.test(formData.aadharNumber)) {
-      errors.push({
-        field: "aadharNumber",
-        message: "Please enter a valid 12-digit Aadhar number",
-      });
-    }
-
-    return errors;
-  };
-
-  const validateUpdateForm = (): FormError[] => {
-    const errors: FormError[] = [];
-
-    if (!updateFormData.seatNumber) {
-      errors.push({
-        field: "seatNumber",
-        message: "Seat number is required",
-      });
-    }
-
-    if (
-      !updateFormData.paymentHistory.amount ||
-      updateFormData.paymentHistory.amount <= 0
-    ) {
-      errors.push({
-        field: "paymentHistory",
-        message: "Please enter a valid amount",
-      });
-    }
-
-    if (!updateFormData.paymentHistory.paymentDate) {
-      errors.push({
-        field: "paymentHistory",
-        message: "Payment date is required",
-      });
-    }
-    if (!updateFormData.membershipType) {
-      errors.push({
-        field: "membershipType",
-        message: "Membership type is required",
-      });
-    }
-
-    return errors;
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdateChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-
-    if (name === "amount" || name === "paymentDate") {
-      // Handle payment history fields
-      setUpdateFormData((prev) => ({
-        ...prev,
-        paymentHistory: {
-          ...prev.paymentHistory,
-          [name]: name === "amount" ? Number(value) : value,
-        },
-      }));
-    } else {
-      // Handle other fields
-      setUpdateFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleDeleteChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setDeleteSeatNumber(e.target.value);
-  };
-  const handleDelete = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!deleteSeatNumber.trim()) {
-      SetDeleteError("Seat number is required");
-      return;
-    }
-
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/get-started");
-        return;
-      }
-
-      await axios.delete(
-        `${
-          import.meta.env.VITE_BACKEND_URL
-        }/api/library/delete-member/${deleteSeatNumber}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Optionally navigate or show a success message
-      navigate("/dashboard/library/members"); // Redirect after successful deletion
-    } catch (error: any) {
-      console.error("Error deleting member:", error);
-      SetDeleteError(
-        error.response?.data?.message || "Failed to delete member"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      paymentHistory: [
-        {
-          ...prev.paymentHistory[0],
-          [name]: name === "amount" ? Number(value) : value,
-        },
-      ],
-    }));
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const formErrors = validateForm();
-
-    if (formErrors.length > 0) {
-      setErrors(formErrors);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/get-started");
-        return;
-      }
-
+      const token = localStorage.getItem('token');
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/add-member`,
         formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      navigate("/dashboard/library/members");
-    } catch (error: any) {
-      console.error("Error adding member:", error);
-      if (error.response?.status === 401) {
-        navigate("/get-started");
-      } else {
-        setErrors([
-          {
-            field: "name",
-            message:
-              error.response?.data?.message ||
-              "Failed to add member. Please try again.",
-          },
-        ]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const updateErrors = validateUpdateForm();
-    if (updateErrors.length > 0) {
-      setUpdateErrors(updateErrors);
-      return;
-    }
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/get-started");
-        return;
-      }
-      const requestData = {
-        seatNumber: updateFormData.seatNumber,
-        paymentHistory: updateFormData.paymentHistory,
-        membershipType: updateFormData.membershipType,
-      };
-      await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/api/library/update-member`,
-        requestData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setUpdateFormData({
-        seatNumber: "",
-        paymentHistory: {
-          amount: 0,
-          paymentDate: new Date().toISOString().split("T")[0],
-        },
-        membershipType: "Basic",
+      setSuccess(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        membershipType: 'Basic',
+        dateOfBirth: '',
+        gender: '',
+        address: '',
+        aadharNumber: '',
+        emergencyContact: '',
       });
-      navigate("/dashboard/library/members");
-    } catch (error: any) {
-      console.error("Error updating member:", error);
-      if (error.response?.status === 401) {
-        navigate("/get-started");
-      } else {
-        setUpdateErrors([
-          {
-            field: "seatNumber",
-            message:
-              error.response?.data?.message ||
-              "Failed to update member. Please try again.",
-          },
-        ]);
-      }
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err: any) {
+      setError(err.response?.data || { message: 'Failed to add member' });
+      setTimeout(() => setError(null), 3000);
     } finally {
       setLoading(false);
     }
   };
 
-  // const transformToFormData = (data: any[]) => {
+  const downloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/LibraryMembersTemplate.csv';
+    link.download = 'LibraryMembersTemplate.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-  //   // Transforming each record in the data array
-  //   const transformedData = data.map((record: any) => ({
-
-  //     name: record.name,
-  //     email: record.email,
-  //     phone: record.phone,
-  //     address: record.address,
-  //     seatNumber: record.seatNumber,
-  //     aadharNumber: record.aadharNumber,
-  //     emergencyContact: record.emergencyContact,
-  //     gender: record.gender,
-  //     dateOfBirth: record.dateOfBirth,
-  //     membershipType: record.membershipType,
-  //     // paymentHistory: [
-  //     //   {
-  //     //     amount: record.paymentHistory_amount || 0,
-  //     //     paymentDate: record.paymentHistory_date || new Date().toISOString(),
-  //     //   },
-  //     // ],
-  //     paymentHistory: record.paymentHistory.map((payment: any) => ({
-  //       amount: payment.amount || 0,
-  //       paymentDate: payment.paymentDate || new Date().toISOString(),
-  //     })),
-  //   }));
-
-  //   return transformedData; // Return the new array
-  // };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target?.result;
-      if (data) {
-        const workbook = XLSX.read(data, { type: "binary" });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const parsedData: any[] = XLSX.utils.sheet_to_json(sheet);
-        setFileData(parsedData); // Update state
-      }
-    };
-    reader.readAsBinaryString(file);
-  };
-  useEffect(() => {}, [fileData]);
+    setUploadError('');
+    setUploadSuccess(false);
+    setUploading(true);
 
-  const handleFileSubmit = async () => {
-    if (fileData.length === 0) {
-      setFileErrors([
-        { field: "file", message: "Please upload a file first." },
-      ]);
-      return;
-    }
-
-    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/get-started");
-        return;
-      }
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const data = new Uint8Array(event.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-      //const transformedData = transformToFormData(fileData);
-      const transformedData = fileData;
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/library/upload-members`,
-        transformedData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          if (jsonData.length < 2) {
+            throw new Error('Excel file must have at least a header row and one data row');
+          }
+
+          const headers = (jsonData[0] as string[]).map((h: string) => h.trim());
+          const dataRows = jsonData.slice(1) as any[];
+
+          const members = dataRows
+            .filter((row) => row && row.length > 0 && row[0])
+            .map((row) => {
+              const member: any = {};
+              headers.forEach((header, colIndex) => {
+                const value = row[colIndex];
+                if (value !== undefined && value !== null && value !== '') {
+                  const headerLower = header.toLowerCase();
+                  
+                  if (headerLower.includes('name')) {
+                    member.name = String(value).trim();
+                  } else if (headerLower.includes('email')) {
+                    member.email = String(value).trim().toLowerCase();
+                  } else if (headerLower.includes('phone')) {
+                    member.phone = String(value).trim().replace(/\D/g, '');
+                  } else if (headerLower.includes('seat number')) {
+                    member.seatNumber = String(value).trim();
+                  } else if (headerLower.includes('date of birth') || headerLower.includes('dob')) {
+                    const dateStr = String(value).trim();
+                    let dateObj: Date;
+                    if (dateStr.includes('/')) {
+                      const [day, month, year] = dateStr.split('/');
+                      dateObj = new Date(`${year}-${month}-${day}`);
+                    } else {
+                      dateObj = new Date(dateStr);
+                    }
+                    member.dateOfBirth = dateObj.toISOString().split('T')[0];
+                  } else if (headerLower.includes('gender')) {
+                    member.gender = String(value).trim();
+                  } else if (headerLower.includes('address')) {
+                    member.address = String(value).trim();
+                  } else if (headerLower.includes('aadhar')) {
+                    member.aadharNumber = String(value).trim().replace(/\D/g, '');
+                  } else if (headerLower.includes('emergency')) {
+                    member.emergencyContact = String(value).trim().replace(/\D/g, '');
+                  } else if (headerLower.includes('membership type')) {
+                    member.membershipType = String(value).trim();
+                  } else if (headerLower.includes('payment amount')) {
+                    if (value) {
+                      member.paymentAmount = parseFloat(String(value)) || 0;
+                    }
+                  } else if (headerLower.includes('payment date')) {
+                    if (value) {
+                      const dateStr = String(value).trim();
+                      let dateObj: Date;
+                      if (dateStr.includes('/')) {
+                        const [day, month, year] = dateStr.split('/');
+                        dateObj = new Date(`${year}-${month}-${day}`);
+                      } else {
+                        dateObj = new Date(dateStr);
+                      }
+                      member.paymentDate = dateObj.toISOString().split('T')[0];
+                    }
+                  }
+                }
+              });
+
+              if (member.paymentAmount || member.paymentDate) {
+                member.paymentHistory = [{
+                  amount: member.paymentAmount || 0,
+                  paymentDate: member.paymentDate || new Date().toISOString().split('T')[0]
+                }];
+                delete member.paymentAmount;
+                delete member.paymentDate;
+              }
+
+              return member;
+            })
+            .filter((member) => member.name && member.email && member.phone);
+
+          if (members.length === 0) {
+            throw new Error('No valid members found in the file. Please check the format.');
+          }
+
+          const token = localStorage.getItem('token');
+          const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/api/library/upload-members`,
+            members,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (response.data.results) {
+            const { added, errors } = response.data.results;
+            if (errors.length > 0) {
+              setUploadError(
+                `Uploaded ${added.length} members successfully. ${errors.length} errors occurred. Check console for details.`
+              );
+              console.error('Upload errors:', errors);
+            } else {
+              setUploadSuccess(true);
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            }
+          } else {
+            setUploadSuccess(true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }
+        } catch (err: any) {
+          setUploadError(err.message || 'Error processing Excel file. Please check the format.');
+        } finally {
+          setUploading(false);
+          e.target.value = '';
         }
-      );
-
-      navigate("/dashboard/library/members");
-    } catch (error: any) {
-      console.error("Error adding members:", error);
-      if (error.response?.status === 401) {
-        navigate("/get-started");
-      } else {
-        setFileErrors([
-          {
-            field: "upload",
-            message:
-              error.response?.data?.message ||
-              "Failed to upload library records. Please try again.",
-          },
-        ]);
-      }
-    } finally {
-      setLoading(false);
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (err: any) {
+      setUploadError(err.message || 'Error reading file');
+      setUploading(false);
+      e.target.value = '';
     }
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6 text-[#727D73]">Add New Member</h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="mt-1 block bg-[#D0DDD0] w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {/* Add this below each input field */}
-            {errors.find((error) => error.field === "name") && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.find((error) => error.field === "name")?.message}
-              </p>
-            )}
-          </div>
+    <div className="space-y-6 max-w-4xl">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Add New Member</h1>
+        <p className="text-gray-600 mt-2">Register a new member to your library</p>
+      </div>
 
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "email") && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.find((error) => error.field === "email")?.message}
-              </p>
-            )}
-          </div>
+      {/* Member Limit Info */}
+      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+        <p className="text-sm text-teal-900">
+          <span className="font-semibold">Current Members:</span>{' '}
+          {memberLimits.isUnlimited ? (
+            <>Unlimited - You have {memberLimits.current} members</>
+          ) : (
+            <>
+              {memberLimits.current} / {memberLimits.limit}{' '}
+              {memberLimits.remaining !== null && <>({memberLimits.remaining} remaining)</>}
+            </>
+          )}
+        </p>
+      </div>
 
-          {/* Add other form fields similarly */}
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Phone
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="10-digit phone number"
-              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "phone") && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.find((error) => error.field === "phone")?.message}
-              </p>
-            )}
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Address
-            </label>
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              rows={3}
-              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "address") && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.find((error) => error.field === "address")?.message}
-              </p>
-            )}
-          </div>
-
-          {/* Seat Number */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Seat Number
-            </label>
-            <input
-              type="text"
-              name="seatNumber"
-              value={formData.seatNumber}
-              onChange={handleChange}
-              placeholder="e.g., 1, 2 ,101.."
-              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "seatNumber") && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.find((error) => error.field === "seatNumber")?.message}
-              </p>
-            )}
-          </div>
-
-          {/* Aadhar Number */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Aadhar Number
-            </label>
-            <input
-              type="text"
-              name="aadharNumber"
-              value={formData.aadharNumber}
-              onChange={handleChange}
-              placeholder="12-digit Aadhar number"
-              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "aadharNumber") && (
-              <p className="mt-1 text-sm text-red-600">
-                {
-                  errors.find((error) => error.field === "aadharNumber")
-                    ?.message
-                }
-              </p>
-            )}
-          </div>
-
-          {/* Emergency Contact */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Emergency Contact
-            </label>
-            <input
-              type="tel"
-              name="emergencyContact"
-              value={formData.emergencyContact}
-              onChange={handleChange}
-              placeholder="10-digit phone number"
-              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "emergencyContact") && (
-              <p className="mt-1 text-sm text-red-600">
-                {
-                  errors.find((error) => error.field === "emergencyContact")
-                    ?.message
-                }
-              </p>
-            )}
-          </div>
-
-          {/* Gender */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Gender
-            </label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="mt-1 text-[#727D73] bg-[#D0DDD0] block w-full h-10 p-1 rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            >
-              <option value="">Select Gender</option>
-              {genderTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            {errors.find((error) => error.field === "gender") && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.find((error) => error.field === "gender")?.message}
-              </p>
-            )}
-          </div>
-
-          {/* Date of Birth */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleChange}
-              className="mt-1 text-[#727D73] bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "dateOfBirth") && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.find((error) => error.field === "dateOfBirth")?.message}
-              </p>
-            )}
-          </div>
-
-          {/* Membership Type */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Membership Type
-            </label>
-            <select
-              name="membershipType"
-              value={formData.membershipType}
-              onChange={handleChange}
-              className="mt-1 block text-[#727D73] bg-[#D0DDD0] w-full h-10 p-1 rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            >
-              {membershipTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            {errors.find((error) => error.field === "membershipType") && (
-              <p className="mt-1 text-sm text-red-600">
-                {
-                  errors.find((error) => error.field === "membershipType")
-                    ?.message
-                }
-              </p>
-            )}
-          </div>
-
-          {/* Payment Amount */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Payment Amount
-            </label>
-            <input
-              type="number"
-              name="amount"
-              //value={formData.paymentHistory[0].amount}
-              onChange={handlePaymentChange}
-              min="0"
-              // step="1"
-              className="mt-1 bg-[#D0DDD0] block w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-            {errors.find((error) => error.field === "paymentHistory") && (
-              <p className="mt-1 text-sm text-red-600">
-                {
-                  errors.find((error) => error.field === "paymentHistory")
-                    ?.message
-                }
-              </p>
-            )}
-          </div>
-
-          {/* Payment Date */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Payment Date
-            </label>
-            <input
-              type="date"
-              name="paymentDate"
-              value={formData.paymentHistory[0].paymentDate.split("T")[0]}
-              onChange={handlePaymentChange}
-              className="mt-1 text-[#727D73] block bg-[#D0DDD0] w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-          </div>
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg text-sm">
+          {error.message}
         </div>
+      )}
 
-        {/* Error Messages */}
-        {errors.length > 0 && (
-          <div className="bg-red-50 p-4 rounded-md">
-            {errors.map((error, index) => (
-              <p key={index} className="text-red-600">
-                {error.message}
-              </p>
-            ))}
-          </div>
-        )}
+      {/* Upload Success Alert */}
+      {uploadSuccess && (
+        <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg text-sm">
+          Members uploaded successfully! Refreshing...
+        </div>
+      )}
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
+      {/* Upload Error Alert */}
+      {uploadError && (
+        <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg text-sm">
+          {uploadError}
+        </div>
+      )}
+
+      {/* Bulk Upload Section */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <FileSpreadsheet className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">Bulk Upload Members</h2>
+        </div>
+        <p className="text-gray-600 mb-4">
+          Upload multiple members at once using an Excel file. Download the template to see the required format.
+        </p>
+        <div className="flex flex-wrap gap-3">
           <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] focus:outline-none focus:ring-2 focus:ring-[#727D73] focus:ring-offset-2 disabled:opacity-50"
+            type="button"
+            onClick={downloadTemplate}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-blue-300 text-blue-700 rounded-lg font-medium hover:bg-blue-50 transition-colors"
           >
-            {loading ? "Adding..." : "Add Member"}
+            <Download className="w-4 h-4" />
+            Download Template
           </button>
-        </div>
-      </form>
-
-      <form onSubmit={handleUpdateSubmit} className="space-y-6">
-        <h2 className="text-2xl font-bold text-[#727D73] mb-6">
-          Update Member
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Seat Number */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Seat Number
-            </label>
+          <label className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer">
+            <Upload className="w-4 h-4" />
+            {uploading ? 'Uploading...' : 'Upload Excel File'}
             <input
-              type="text"
-              name="seatNumber"
-              value={updateFormData.seatNumber}
-              onChange={handleUpdateChange}
-              className="mt-1 block w-full bg-[#D0DDD0] rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileUpload}
+              disabled={uploading}
+              className="hidden"
             />
-          </div>
-
-          {/* Payment Amount - Fix the value binding */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Payment Amount
-            </label>
-            <input
-              type="number"
-              name="amount"
-              //value={updateFormData.paymentHistory.amount} // Fix this line
-              onChange={handleUpdateChange}
-              min="0"
-              className="mt-1 block w-full bg-[#D0DDD0] rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-          </div>
-
-          {/* Payment Date */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Payment Date
-            </label>
-            <input
-              type="date"
-              name="paymentDate"
-              value={updateFormData.paymentHistory.paymentDate}
-              onChange={handleUpdateChange}
-              className="mt-1 text-[#727D73] block bg-[#D0DDD0] w-full rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            />
-          </div>
-
-          {/* Membership Type */}
-          <div>
-            <label className="block text-sm font-medium text-[#727D73]">
-              Membership Type
-            </label>
-            <select
-              name="membershipType"
-              value={updateFormData.membershipType}
-              onChange={handleUpdateChange}
-              className="mt-1 text-[#727D73] block w-full bg-[#D0DDD0] h-10 p-1 rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-            >
-              {membershipTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Error Messages */}
-        {updateErrors.length > 0 && (
-          <div className="bg-red-50 p-4 rounded-md">
-            {updateErrors.map((error, index) => (
-              <p key={index} className="text-red-600">
-                {error.message}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] focus:outline-none focus:ring-2 focus:ring-[#727D73] focus:ring-offset-2 disabled:opacity-50"
-          >
-            {loading ? "Updating..." : "Update Member"}
-          </button>
-        </div>
-      </form>
-
-      <form className="space-y-6" onSubmit={handleDelete}>
-        <h2 className="text-2xl font-bold text-[#727D73] mb-6">
-          Delete Member
-        </h2>
-        <div>
-          <label className="block text-sm font-medium text-[#727D73]">
-            Seat Number
           </label>
-          <input
-            type="text"
-            name="seatNumber"
-            value={deleteSeatNumber}
-            onChange={handleDeleteChange}
-            className="mt-1 block w-full bg-[#D0DDD0] rounded-md border-gray-300 shadow-sm focus:border-[#727D73] focus:ring-[#727D73]"
-          />
         </div>
-
-        <div className="flex justify-end ">
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
-          >
-            {loading ? "Deleting..." : "Delete Member"}
-          </button>
-        </div>
-      </form>
-
-      <div className="bg-[#D0DDD0] p-6 rounded-lg shadow-md mt-2">
-        <h2 className="text-2xl font-bold text-[#727D73] mb-6">
-          Upload Library Members
-        </h2>
-
-        <div>
-          <label
-            htmlFor="file-upload"
-            className="block text-sm font-medium text-[#727D73]"
-          >
-            Upload Excel File (.xlsx, .xls)
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            accept=".xlsx, .xls"
-            onChange={handleFileUpload}
-            className="block w-full text-sm text-[#727D73] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#727D73] file:text-white hover:file:bg-[#AAB99A]"
-          />
-        </div>
-
-        <div className="mt-4">
-          <a href="../../../../public/MemberAnalyticsDatanew.xlsx" download className="text-[#727D73] hover:underline">
-            Download Sample Excel File
-          </a>
-        </div>
-
-        <div className="flex justify-end mt-2">
-          <button
-            onClick={handleFileSubmit}
-            disabled={loading}
-            className="px-4 py-2 bg-[#727D73] text-white rounded-md hover:bg-[#AAB99A] focus:outline-none focus:ring-2 focus:ring-[#727D73] focus:ring-offset-2 disabled:opacity-50"
-          >
-            {loading ? "Uploading..." : "Upload File"}
-          </button>
-        </div>
-
-        {FileErrors.length > 0 && (
-          <div className="mt-4">
-            {FileErrors.map((error, index) => (
-              <p key={index} className="text-sm text-red-600">
-                {error.message}
-              </p>
-            ))}
+        {uploading && (
+          <div className="mt-4 flex items-center gap-2 text-blue-600">
+            <Loader className="w-4 h-4 animate-spin" />
+            <span>Processing file...</span>
           </div>
         )}
       </div>
 
-      
+      <div className="text-center text-gray-500 text-sm">OR</div>
+
+      {/* Success Message */}
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg text-sm">
+          Member added successfully!
+        </div>
+      )}
+
+      {/* Form Card */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Personal Information Section */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h2>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  placeholder="John Doe"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  placeholder="john@example.com"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  placeholder="+91 98765 43210"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Aadhar Number</label>
+                <input
+                  type="text"
+                  name="aadharNumber"
+                  value={formData.aadharNumber}
+                  onChange={handleChange}
+                  placeholder="XXXX XXXX XXXX"
+                  maxLength={12}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Address Information */}
+          <div className="border-t border-gray-200 pt-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Address Information</h2>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Enter full address"
+                  rows={3}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Membership & Emergency */}
+          <div className="border-t border-gray-200 pt-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Membership & Contact</h2>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Membership Type *</label>
+                <select
+                  name="membershipType"
+                  value={formData.membershipType}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                >
+                  <option value="Basic">Basic</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Premium">Premium</option>
+                  <option value="Annual">Annual</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact</label>
+                <input
+                  type="tel"
+                  name="emergencyContact"
+                  value={formData.emergencyContact}
+                  onChange={handleChange}
+                  placeholder="+91 98765 43210"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="border-t border-gray-200 pt-6 flex flex-col sm:flex-row gap-3">
+            <button
+              type="reset"
+              className="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              Clear Form
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  <span>Adding Member...</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  <span>Add Member</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

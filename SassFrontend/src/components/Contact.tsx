@@ -18,7 +18,7 @@ const Contact = () => {
             <div className="space-y-6">
               {/* Phone */}
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-slate-600 rounded-lg flex items-center justify-center">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="none"
@@ -45,8 +45,8 @@ const Contact = () => {
           <div className="flex items-center justify-center animate__animated animate__fadeInRight">
             <a
               href="mailto:sunish.5186@mail.com"
-              className="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center 
-                         hover:bg-indigo-700 transition-colors cursor-pointer"
+              className="w-24 h-24 bg-slate-600 rounded-full flex items-center justify-center 
+                         hover:bg-slate-700 transition-colors cursor-pointer"
               aria-label="Send Email"
             >
               <Mail className="w-12 h-12 text-white" />

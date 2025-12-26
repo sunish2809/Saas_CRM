@@ -78,13 +78,20 @@ const Hero = () => {
               One platform, endless possibilities.
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button onClick={()=>navigate('/get-started')} className="bg-[#146eb4]-600 bg-[#146eb4] hover:bg-[#0b1d2b] text-white px-8 py-3 rounded-lg  transition-all text-lg font-semibold animate__animated animate__fadeInUp">
+              <button onClick={()=>navigate('/get-started')} className="bg-slate-700 hover:bg-slate-800 text-white px-8 py-3 rounded-lg transition-all text-lg font-semibold animate__animated animate__fadeInUp shadow-lg">
                 Get Started
               </button>
  
-              <a href="#solutions" onClick={handleScroll} className="border-2 border-gray-300 text-black px-8 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all text-lg font-semibold animate__animated animate__fadeInUp animate__delay-1s">
+              <a href="#solutions" onClick={handleScroll} className="border-2 border-slate-700 text-slate-800 bg-white px-8 py-3 rounded-lg hover:bg-slate-50 hover:border-slate-800 transition-all text-lg font-semibold animate__animated animate__fadeInUp animate__delay-1s shadow-md">
                 View Solutions
               </a>
+              
+              <button 
+                onClick={() => navigate('/try-demo')} 
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg transition-all text-lg font-semibold animate__animated animate__fadeInUp animate__delay-2s shadow-lg"
+              >
+                Try Demo
+              </button>
             </div>
             <div className="mt-8 text-gray-400 flex items-center gap-4 justify-center lg:justify-start">
               <div className="flex flex-row  mb-10 ">

@@ -28,19 +28,6 @@ export const projects = [
       "Send personalized messages (WhatsApp) to members directly from their profile.",
     ],
   },
-  {
-    title: "Flat Management",
-    description: [
-      "An advanced system for managing tenants and rental operations for flat owners.",
-      "Features:",
-      "CRUD operations for tenants and flat details.",
-      "Automatic notification for rent reminders to tenants (30 days).",
-      "Separate profile page for each tenant with complete payment and rental history.",
-      "Highlights overdue accounts with a RED background.",
-      "Visualizations for rent dues, tenant turnover, and trends over the last 6 months.",
-      "Send direct messages (WhatsApp) to tenants from their profile.",
-    ],
-  },
 ];
 
 const solutions = [
@@ -126,16 +113,16 @@ const GetStarted = () => {
               className="bg-neutral-50 p-6 flex flex-col rounded-xl shadow-lg hover:shadow-xl transition-shadow animate__animated animate__fadeInUp "
               style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <div className="mb-4 text-indigo-500">{solution.icon}</div>
-              <h3 className="text-xl font-semibold text-black mb-3">
+              <div className="mb-4 text-slate-600">{solution.icon}</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 {solution.title}
               </h3>
-              <p className="text-gray-400 mb-4">{solution.description}</p>
-              <ul className="text-black-300 space-y-2 mb-6 flex-grow">
+              <p className="text-gray-600 mb-4">{solution.description}</p>
+              <ul className="text-gray-700 space-y-2 mb-6 flex-grow">
                 {solution.features.map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex">
                     <svg
-                      className="w-7 h-7 mr-2 text-green-500 flex-shrink-0"
+                      className="w-7 h-7 mr-2 text-slate-600 flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -145,13 +132,24 @@ const GetStarted = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <p>{feature}</p>
+                    <p className="text-sm">{feature}</p>
                   </div>
                 ))}
               </ul>
-              <button onClick={()=>navigate(`/signin?business=${solution.title}`)} className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors mt-auto">
-                Sign In
-              </button>
+              <div className="flex gap-2 mt-auto">
+                <button 
+                  onClick={()=>navigate(`/signin?business=${solution.title}`)} 
+                  className="flex-1 bg-slate-700 text-white py-2 rounded-lg hover:bg-slate-800 transition-colors font-medium"
+                >
+                  Sign In
+                </button>
+                <button 
+                  onClick={()=>navigate(`/try-demo?type=${solution.title}`)} 
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-2 rounded-lg transition-colors font-medium"
+                >
+                  Try Demo
+                </button>
+              </div>
             </div>
           ))}
         </div>

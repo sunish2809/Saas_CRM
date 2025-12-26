@@ -5,8 +5,26 @@ import ReactFusioncharts from "react-fusioncharts";
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 import { format, isValid, parse } from "date-fns";
 import axios from "axios";
+import { TrendingUp, Users, DollarSign, Loader } from "lucide-react";
 
 ReactFusioncharts.fcRoot(FusionCharts, Charts, FusionTheme);
+
+// Type assertion for ReactFusioncharts component
+const ReactFC = ReactFusioncharts as any;
+
+// Type for chart config
+interface ChartConfig {
+  type: string;
+  width: string;
+  height: string;
+  dataFormat: string;
+  dataSource: {
+    chart: any;
+    data?: any[];
+    categories?: any[];
+    dataset?: any[];
+  };
+}
 
 const Analytics = () => {
   const [availableYears, setAvailableYears] = useState<number[]>([]);
@@ -14,7 +32,6 @@ const Analytics = () => {
   const [deleteAddSelectedYear, setDeleteAddSelectedYear] = useState(
     new Date().getFullYear()
   );
-
   const [analyticsData, setAnalyticsData] = useState({
     totalMembers: 0,
     activeMembers: 0,
@@ -27,35 +44,39 @@ const Analytics = () => {
     },
   });
 
-  const [chartConfigs, setChartConfigs] = useState<any>({
+  const [chartConfigs, setChartConfigs] = useState<{
+    totalMembers: ChartConfig | {};
+    revenue: ChartConfig | {};
+    membershipDistribution: ChartConfig | {};
+  }>({
     totalMembers: {},
     revenue: {},
     membershipDistribution: {},
-    newMembers: {},
   });
 
-  const [monthlyTrendChart, SetMonthlyTrendChart] = useState<any>({
+  const [monthlyTrendChart, SetMonthlyTrendChart] = useState<{
+    monthlyPaymentTrends: ChartConfig | {};
+  }>({
     monthlyPaymentTrends: {},
   });
 
-  const [addDeleteChart, SetAddDeleteChart] = useState<any>({
+  const [addDeleteChart, SetAddDeleteChart] = useState<{
+    addDeleteTrends: ChartConfig | {};
+  }>({
     addDeleteTrends: {},
   });
 
-  // const parseDate = (dateStr: string): Date => {
-  //   const [day, month, year] = dateStr.split("/").map(Number);
-  //   return new Date(year, month - 1, day); // Months are 0-based in JavaScript
-  // };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token"); // Retrieve token from local storage
+        const token = localStorage.getItem("token");
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/library/get-all-members`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Add token to headers
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -73,9 +94,7 @@ const Analytics = () => {
           ),
           paymentDate: member.paymentHistory[0]?.paymentDate
             ? (() => {
-                const parsedDate = new Date(
-                  member.paymentHistory[0].paymentDate
-                );
+                const parsedDate = new Date(member.paymentHistory[0].paymentDate);
                 return isValid(parsedDate)
                   ? format(parsedDate, "dd/MM/yyyy")
                   : "N/A";
@@ -88,68 +107,57 @@ const Analytics = () => {
                 );
                 const expiryDate = new Date(lastPaymentDate);
                 expiryDate.setDate(lastPaymentDate.getDate() + 30);
-
                 return new Date() > expiryDate ? "Inactive" : "Active";
               })()
             : "Not Active",
-          // joinDate: member.joinDate || "N/A", // Replace with actual data if available
           joinDate: member.createdAt
             ? new Date(member.createdAt).toLocaleDateString()
             : "N/A",
-
           avatar: `https://avatar.iran.liara.run/public/boy?username=${member.name.replace(
             " ",
             ""
           )}`,
         }));
 
-        const years: any = [
+        const years: number[] = [
           ...new Set(
             apiMembers
-              .filter((member: { paymentDate: { raw: string | null } }) => {
-                return member.paymentDate; // Ensure raw date exists
+              .filter((member: any) => member.paymentDate)
+              .map((member: any) => {
+                const rawDate = member.paymentDate;
+                const parsedDate = parse(rawDate, "dd/MM/yyyy", new Date());
+                return isValid(parsedDate) ? parsedDate.getFullYear() : null;
               })
-              .map((member: { paymentDate: { raw: string } | string }) => {
-                //const rawDate = member.paymentDate;
-                const rawDate =
-                  typeof member.paymentDate === "string"
-                    ? member.paymentDate
-                    : member.paymentDate.raw; // Handle both cases
-                const parsedDate = parse(rawDate, "dd/MM/yyyy", new Date()); // Correctly parse DD/MM/YYYY
-                return isValid(parsedDate) ? parsedDate.getFullYear() : null; // Extract year if valid
-              })
-              .filter((year: number | null) => year !== null) // Remove invalid years
+              .filter((year: number | null) => year !== null) as number[]
           ),
-        ].sort((a: any, b: any) => a - b);
+        ].sort((a: number, b: number) => a - b);
 
         setAvailableYears(years);
 
-        // Process analytics data
         const totalMembers = apiMembers.length;
         const activeMembers = apiMembers.filter(
-          (member: { status: string }) => member.status === "Active"
+          (member: any) => member.status === "Active"
         ).length;
         const totalRevenue = apiMembers.reduce(
-          (sum: number, member: { amount: any }) => sum + member.amount,
+          (sum: number, member: any) => sum + member.amount,
           0
         );
 
         const membershipDistribution = {
           basic: apiMembers.filter(
-            (member: { package: string }) => member.package === "Basic"
+            (member: any) => member.package === "Basic"
           ).length,
           standard: apiMembers.filter(
-            (member: { package: string }) => member.package === "Standard"
+            (member: any) => member.package === "Standard"
           ).length,
           premium: apiMembers.filter(
-            (member: { package: string }) => member.package === "Premium"
+            (member: any) => member.package === "Premium"
           ).length,
           annual: apiMembers.filter(
-            (member: { package: string }) => member.package === "Annual"
+            (member: any) => member.package === "Annual"
           ).length,
         };
 
-        // Update state
         setAnalyticsData({
           totalMembers,
           activeMembers,
@@ -157,31 +165,24 @@ const Analytics = () => {
           membershipDistribution,
         });
 
-        // Update chart configurations
         setChartConfigs({
           totalMembers: {
             type: "column2d",
             width: "100%",
-            height: "400",
+            height: "300",
             dataFormat: "json",
             dataSource: {
               chart: {
                 caption: "Total Members",
                 theme: "fusion",
-                paletteColors: "#727D73", // Bar color
-                bgColor: "#D0DDD0", // Background color
-                canvasBgColor: "#D0DDD0", // Canvas background color
-                baseFontColor: "#727D73", // Label color
-                showAlternateHGridColor: 0, // Disable alternate grid color
-                divLineColor: "#727D73", // Horizontal grid line color
-                divLineThickness: "1", // Horizontal line thickness
-                divLineDashed: "0", // Solid line (not dashed)
-                yAxisNameFontColor: "#727D73", // Y-axis label color
-                xAxisNameFontColor: "#727D73", // X-axis label color
-                captionFontColor: "#727D73", // Caption color
-                toolTipBgColor: "#D0DDD0", // Tooltip background color
-                toolTipBorderColor: "#727D73", // Tooltip border color
-                toolTipColor: "#727D73", // Tooltip text color
+                paletteColors: "#2563EB",
+                bgColor: "#F9FAFB",
+                canvasBgColor: "#FFFFFF",
+                baseFontColor: "#6B7280",
+                showAlternateHGridColor: 0,
+                divLineColor: "#E5E7EB",
+                divLineThickness: "1",
+                divLineDashed: "0",
               },
               data: [{ label: "Members", value: totalMembers }],
             },
@@ -189,64 +190,40 @@ const Analytics = () => {
           revenue: {
             type: "column2d",
             width: "100%",
-            height: "400",
+            height: "300",
             dataFormat: "json",
             dataSource: {
               chart: {
                 caption: "Total Revenue",
                 theme: "fusion",
-                paletteColors: "#727D73", // Bar color
-                bgColor: "#D0DDD0", // Default background color
-                canvasBgColor: "#FFFFFF", // Canvas background color
-                baseFontColor: "#727D73", // Label color
-                showAlternateHGridColor: 0, // Disable alternate grid color
-                divLineColor: "#727D73", // Horizontal grid line color
-                divLineThickness: "1", // Horizontal line thickness
-                divLineDashed: "0", // Solid line
-                yAxisNameFontColor: "#727D73", // Y-axis label color
-                xAxisNameFontColor: "#727D73", // X-axis label color
-                captionFontColor: "#727D73", // Caption color
+                paletteColors: "#10B981",
+                bgColor: "#F9FAFB",
+                canvasBgColor: "#FFFFFF",
+                baseFontColor: "#6B7280",
+                showAlternateHGridColor: 0,
+                divLineColor: "#E5E7EB",
+                divLineThickness: "1",
+                divLineDashed: "0",
               },
-              data: [{ label: "Revenue", value: totalRevenue }],
+              data: [{ label: "Revenue (₹)", value: totalRevenue }],
             },
           },
-          // membershipDistribution: {
-          //   type: "pie3d",
-          //   width: "100%",
-          //   height: "400",
-          //   dataFormat: "json",
-          //   dataSource: {
-          //     chart: {
-          //       caption: "Membership Distribution",
-          //       theme: "fusion",
-          //     },
-          //     data: [
-          //       { label: "Basic", value: membershipDistribution.basic },
-          //       { label: "Standard", value: membershipDistribution.standard },
-          //       { label: "Premium", value: membershipDistribution.premium },
-          //       { label: "Annual", value: membershipDistribution.annual },
-          //     ],
-          //   },
-          // },
           membershipDistribution: {
             type: "pie3d",
             width: "100%",
-            height: "400",
+            height: "300",
             dataFormat: "json",
             dataSource: {
               chart: {
                 caption: "Membership Distribution",
                 theme: "fusion",
-                paletteColors: "#727D73,#BED1CF,#EEEEEE,#FFF2E1", // Custom colors for slices
-                bgColor: "#D0DDD0", // Background color for the chart
-                canvasBgColor: "#FFFFFF", // Background color for the canvas area
-                showBorder: 0, // Remove border around the chart
-                use3DLighting: 1, // Enable 3D lighting effect
-                showPercentValues: 1, // Display percentage values on slices
-                decimals: 1, // Number formatting for percentage
-                baseFontColor: "#727D73", // Font color for labels
-                baseFontSize: "12", // Font size for labels
-                captionFontColor: "#727D73", // Caption font color
+                paletteColors: "#2563EB,#1E40AF,#3B82F6,#60A5FA",
+                bgColor: "#F9FAFB",
+                canvasBgColor: "#FFFFFF",
+                showBorder: 0,
+                use3DLighting: 1,
+                showPercentValues: 1,
+                baseFontColor: "#6B7280",
               },
               data: [
                 { label: "Basic", value: membershipDistribution.basic },
@@ -259,6 +236,8 @@ const Analytics = () => {
         });
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -268,32 +247,26 @@ const Analytics = () => {
   useEffect(() => {
     const addDeleteMemberStat = async () => {
       try {
-        const token = localStorage.getItem("token"); // Retrieve token from local storage
+        const token = localStorage.getItem("token");
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/library/get-all-members`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Add token to headers
+              Authorization: `Bearer ${token}`,
             },
           }
         );
+
         const stats = new Array(12).fill(0);
         response.data.forEach((member: any) => {
           member.paymentHistory.forEach((payment: any) => {
             const paymentDate = new Date(payment.paymentDate);
-
             if (paymentDate.getFullYear() === deleteAddSelectedYear) {
               stats[paymentDate.getMonth()] += 1;
             }
           });
         });
 
-        const newStats = stats.map((count, index) => ({
-          month: index + 1,
-          count,
-        }));
-
-        // Fetch deleted members
         const deletedMembersResponse = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/library/get-deleted-member`,
           {
@@ -307,35 +280,29 @@ const Analytics = () => {
         deletedMembersResponse.data
           .filter((stat: any) => stat._id.year === deleteAddSelectedYear)
           .forEach((stat: any) => {
-            deletedStats[stat._id.month - 1] = stat.count; // Use month - 1 for 0-based index
+            deletedStats[stat._id.month - 1] = stat.count;
           });
 
         SetAddDeleteChart(() => ({
           addDeleteTrends: {
             type: "msline",
             width: "100%",
-            height: "400",
+            height: "300",
             dataFormat: "json",
             dataSource: {
               chart: {
-                caption: `Monthly Trend for added and deleted members (${deleteAddSelectedYear})`,
+                caption: `Monthly Trend: Added & Deleted Members (${deleteAddSelectedYear})`,
                 xAxisName: "Month",
                 yAxisName: "Count",
                 theme: "fusion",
-                bgColor: "#D0DDD0", // Overall chart background color
-                canvasBgColor: "#D0DDD0", // Canvas background color (on which the graph is drawn)
-                canvasBgAlpha: "100", // Make sure canvas background is fully opaque
-                baseFontColor: "#727D73", // Font color
-                showAlternateHGridColor: 0, // Disable alternate grid colors
-                divLineColor: "#727D73", // Grid line color
-                divLineThickness: "1", // Line thickness
-                divLineDashed: "0", // Solid lines
-                paletteColors: "#727D73, #3D3D3D", // Custom colors for datasets
-                usePlotGradientColor: 0, // Disable gradients on the plot
-                showCanvasBorder: 0, // Remove the border of the canvas
-                yAxisNameFontColor: "#727D73", // Y-axis label color
-                xAxisNameFontColor: "#727D73", // X-axis label color
-                captionFontColor: "#727D73", // Caption color
+                bgColor: "#F9FAFB",
+                canvasBgColor: "#FFFFFF",
+                baseFontColor: "#6B7280",
+                showAlternateHGridColor: 0,
+                divLineColor: "#E5E7EB",
+                divLineThickness: "1",
+                divLineDashed: "0",
+                paletteColors: "#2563EB, #EF4444",
               },
               categories: [
                 {
@@ -357,51 +324,50 @@ const Analytics = () => {
               ],
               dataset: [
                 {
-                  seriesname: "New/Renewed Members",
-                  lineColor: "#727D73",
-                  anchorBgColor: "#727D73",
-                  data: newStats.map((stat) => ({ value: stat.count })),
+                  seriesname: "Added Members",
+                  lineColor: "#2563EB",
+                  anchorBgColor: "#2563EB",
+                  data: stats.map((count) => ({ value: count })),
                 },
                 {
                   seriesname: "Deleted Members",
-                  lineColor: "#3D3D3D",
-                  anchorBgColor: "#3D3D3D",
+                  lineColor: "#EF4444",
+                  anchorBgColor: "#EF4444",
                   data: deletedStats.map((count) => ({ value: count })),
                 },
               ],
             },
           },
         }));
-      } catch (error: any) {
-        console.log(error);
+      } catch (error) {
+        console.error("Error fetching add/delete data:", error);
       }
     };
+
     addDeleteMemberStat();
   }, [deleteAddSelectedYear]);
 
   useEffect(() => {
     const calculateMonthlyTrends = async () => {
       try {
-        const token = localStorage.getItem("token"); // Retrieve token from local storage
+        const token = localStorage.getItem("token");
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/library/get-all-members`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Add token to headers
+              Authorization: `Bearer ${token}`,
             },
           }
         );
 
-        const monthlyPayments = response.data.reduce((acc:any, member:any) => {
-          member.paymentHistory.forEach((payment:any) => {
+        const monthlyPayments = response.data.reduce((acc: any, member: any) => {
+          member.paymentHistory.forEach((payment: any) => {
             const paymentDate = new Date(payment.paymentDate);
             if (!isNaN(paymentDate.getTime())) {
               const year = paymentDate.getFullYear();
               const month = paymentDate.getMonth();
               const key = `${year}-${month}`;
-
               if (!acc[key]) acc[key] = 0;
-
               acc[key] += payment.amount;
             }
           });
@@ -418,159 +384,193 @@ const Analytics = () => {
           };
         });
 
-        SetMonthlyTrendChart((prevConfigs:any) => ({
+        SetMonthlyTrendChart((prevConfigs: any) => ({
           ...prevConfigs,
           monthlyPaymentTrends: {
             type: "line",
             width: "100%",
-            height: "400",
+            height: "300",
             dataFormat: "json",
             dataSource: {
               chart: {
                 caption: "Monthly Payment Trends",
                 xAxisName: "Month",
-                yAxisName: "Total Payments",
+                yAxisName: "Total Payments (₹)",
                 theme: "fusion",
-                paletteColors: "#727D73", // Bar color
-                bgColor: "#D0DDD0", // Default background color
-                canvasBgColor: "#FFFFFF", // Canvas background color
-                baseFontColor: "#727D73", // Label color
-                showAlternateHGridColor: 0, // Disable alternate grid color
-                divLineColor: "#727D73", // Horizontal grid line color
-                divLineThickness: "1", // Horizontal line thickness
-                divLineDashed: "0", // Solid line
-                yAxisNameFontColor: "#727D73", // Y-axis label color
-                xAxisNameFontColor: "#727D73", // X-axis label color
-                captionFontColor: "#727D73", // Caption color
+                paletteColors: "#2563EB",
+                bgColor: "#F9FAFB",
+                canvasBgColor: "#FFFFFF",
+                baseFontColor: "#6B7280",
+                showAlternateHGridColor: 0,
+                divLineColor: "#E5E7EB",
+                divLineThickness: "1",
+                divLineDashed: "0",
               },
               data: monthlyData,
             },
           },
         }));
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching monthly trends:", error);
       }
     };
 
     calculateMonthlyTrends();
   }, [selectedYear]);
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <Loader className="w-8 h-8 text-teal-600 animate-spin mb-4" />
+        <p className="text-gray-600">Loading analytics...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-8  min-h-screen bg-[#F0F0D7]">
-      <h2 className="text-3xl font-bold text-center mb-8 text-[#727D73]">
-        Analytics Dashboard
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
-          <h3 className="text-xl text-[#727D73] font-semibold">
-            Total Members
-          </h3>
-          <p className="text-2xl text-[#727D73] font-bold">
-            {analyticsData.totalMembers}
-          </p>
-          {/* Show loader while data is loading */}
-          {/* {!chartConfigs.totalMembers.dataSource ? (
-            <div className="flex items-center justify-center min-h-[200px]">
-              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+        <p className="text-gray-600 mt-2">Monitor your library performance and member metrics</p>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Total Members Card */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Total Members</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{analyticsData.totalMembers}</p>
+              <p className="text-xs text-gray-500 mt-2">All registered members</p>
             </div>
-          ) : (
-            <ReactFusioncharts {...chartConfigs.totalMembers} />
-          )} */}
+            <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-teal-600" />
+            </div>
+          </div>
         </div>
-        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
-          <h3 className="text-xl text-[#727D73] font-semibold">
-            Total Revenue
-          </h3>
-          <p className="text-2xl text-[#727D73] font-bold">
-           ₹{analyticsData.totalRevenue}
-          </p>
-          {/* {!chartConfigs.revenue.dataSource ? (
-            <div className="flex items-center justify-center min-h-[200px]">
-              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+
+        {/* Active Members Card */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Active Members</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{analyticsData.activeMembers}</p>
+              <p className="text-xs text-teal-600 mt-2">
+                {analyticsData.totalMembers > 0
+                  ? `${Math.round((analyticsData.activeMembers / analyticsData.totalMembers) * 100)}% active`
+                  : "0% active"}
+              </p>
             </div>
-          ) : (
-            <ReactFusioncharts {...chartConfigs.revenue} />
-          )} */}
+            <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-teal-600" />
+            </div>
+          </div>
         </div>
-        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6">
-          <h3 className="text-xl text-[#727D73] font-semibold">
-            Membership Distribution
-          </h3>
-          {!chartConfigs.membershipDistribution.dataSource ? (
-            <div className="flex items-center justify-center min-h-[200px]">
-              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
+
+        {/* Total Revenue Card */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Total Revenue</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">₹{analyticsData.totalRevenue.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-2">From all members</p>
             </div>
+            <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-amber-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Total Members Chart */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Member Overview</h2>
+          {chartConfigs.totalMembers && 'dataSource' in chartConfigs.totalMembers ? (
+            <ReactFC {...(chartConfigs.totalMembers as ChartConfig)} />
           ) : (
-            <ReactFusioncharts {...chartConfigs.membershipDistribution} />
+            <div className="flex justify-center py-8">
+              <Loader className="w-6 h-6 text-gray-400 animate-spin" />
+            </div>
           )}
         </div>
 
-        <div className="bg-[#D0DDD0] rounded-lg p-6">
-          <div className="mb-4">
-            <label
-              htmlFor="yearFilter"
-              className=" text-[#727D73] mr-2 font-medium"
-            >
-              Select Year:
-            </label>
-            <select
-              id="yearFilter"
-              className="border border-[#727D73] rounded px-2 py-1 w-40 focus:outline-none focus:ring focus:ring-[#727D73] focus:border-[#727D73] bg-[#D0DDD0] text-[#727D73] hover:cursor-pointer"
-              value={deleteAddSelectedYear}
-              onChange={(e) => setDeleteAddSelectedYear(Number(e.target.value))}
-            >
-              {availableYears.map((year) => (
-                <option
-                  key={year}
-                  value={year}
-                  className="bg-[#D0DDD0] text-[#727D73] hover:bg-[#727D73] hover:text-[#5E6F5E]"
-                >
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-          {!addDeleteChart.addDeleteTrends.dataSource ? (
-            <div className="flex items-center justify-center min-h-[200px]">
-              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
-            </div>
+        {/* Revenue Chart */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Revenue Overview</h2>
+          {chartConfigs.revenue && 'dataSource' in chartConfigs.revenue ? (
+            <ReactFC {...(chartConfigs.revenue as ChartConfig)} />
           ) : (
-            <ReactFusioncharts {...addDeleteChart.addDeleteTrends} />
+            <div className="flex justify-center py-8">
+              <Loader className="w-6 h-6 text-gray-400 animate-spin" />
+            </div>
           )}
         </div>
-        <div className="bg-[#D0DDD0] shadow-lg rounded-lg p-6 col-span-full">
-          <div className="mb-4">
-            <label
-              htmlFor="yearFilter"
-              className=" text-[#727D73] mr-2 font-medium"
-            >
-              Select Year:
-            </label>
-            <select
-              id="yearFilter"
-              className="border border-[#727D73] rounded px-2 py-1 w-40 focus:outline-none focus:ring focus:ring-[#727D73] focus:border-[#727D73] bg-[#D0DDD0] text-[#727D73] hover:cursor-pointer"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-            >
-              {availableYears.map((year) => (
-                <option
-                  key={year}
-                  value={year}
-                  className="bg-[#D0DDD0] text-[#727D73] hover:bg-[#727D73] hover:text-[#5E6F5E]"
-                >
-                  {year}
-                </option>
-              ))}
-            </select>
+      </div>
+
+      {/* Membership Distribution */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Membership Distribution</h2>
+        {chartConfigs.membershipDistribution && 'dataSource' in chartConfigs.membershipDistribution ? (
+          <ReactFC {...(chartConfigs.membershipDistribution as ChartConfig)} />
+        ) : (
+          <div className="flex justify-center py-8">
+            <Loader className="w-6 h-6 text-gray-400 animate-spin" />
           </div>
-          {!monthlyTrendChart.monthlyPaymentTrends.dataSource ? (
-            <div className="flex items-center justify-center min-h-[200px]">
-              <div className="w-10 h-10 border-4 border-gray-300 border-t-[#727D73] rounded-full animate-spin"></div>
-            </div>
-          ) : (
-            <ReactFusioncharts {...monthlyTrendChart.monthlyPaymentTrends} />
-          )}
+        )}
+      </div>
+
+      {/* Monthly Add/Delete Trends */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Monthly Member Trends</h2>
+          <select
+            value={deleteAddSelectedYear}
+            onChange={(e) => setDeleteAddSelectedYear(Number(e.target.value))}
+            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100"
+          >
+            {availableYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
         </div>
+        {addDeleteChart.addDeleteTrends && 'dataSource' in addDeleteChart.addDeleteTrends ? (
+          <ReactFC {...(addDeleteChart.addDeleteTrends as ChartConfig)} />
+        ) : (
+          <div className="flex justify-center py-8">
+            <Loader className="w-6 h-6 text-gray-400 animate-spin" />
+          </div>
+        )}
+      </div>
+
+      {/* Monthly Payment Trends */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Payment Trends</h2>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100"
+          >
+            {availableYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+        {monthlyTrendChart.monthlyPaymentTrends && 'dataSource' in monthlyTrendChart.monthlyPaymentTrends ? (
+          <ReactFC {...(monthlyTrendChart.monthlyPaymentTrends as ChartConfig)} />
+        ) : (
+          <div className="flex justify-center py-8">
+            <Loader className="w-6 h-6 text-gray-400 animate-spin" />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -42,7 +42,7 @@
 //       ],
 //       buttonText: "Get Started",
 //       className: "bg-white border border-gray-200",
-//       buttonClassName: "bg-indigo-600 hover:bg-indigo-700",
+//       buttonClassName: "bg-slate-600 hover:bg-slate-700",
 //       textColorClass: "text-gray-900",
 //       animationDelay: "",
 //     },
@@ -75,7 +75,7 @@
 //       ],
 //       buttonText: "Get Started",
 //       className: "bg-white border border-gray-200",
-//       buttonClassName: "bg-indigo-600 hover:bg-indigo-700",
+//       buttonClassName: "bg-slate-600 hover:bg-slate-700",
 //       textColorClass: "text-gray-900",
 //       animationDelay: "animate__delay-2s",
 //     },
@@ -169,50 +169,101 @@
 
 
 import axios from "axios";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Pricing: FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Get user info from localStorage to determine redirect after payment
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        setUser(JSON.parse(userStr));
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
+  }, []);
 
   const pricingPlans = [
     {
-      name: "Basic",
-      price: "1500",
-      features: ["1 Business (Single Management System)", "Up to 250 Users", "Basic Analytics", "Email Support"],
-      buttonText: "Get Started",
+      name: "Starter",
+      price: "999",
+      features: [
+        "1 Business Type (Gym/Library)",
+        "Up to 100 Members",
+        "Member CRUD Operations",
+        "Payment History Tracking",
+        "Basic Analytics Dashboard",
+        "Excel Import/Export",
+        "Payment Reminders (30 days)",
+        "Member Profile Pages",
+        "Email Support"
+      ],
+      buttonText: "Start Free Trial",
       className: "bg-white border border-gray-200",
-      buttonClassName: "bg-indigo-600 hover:bg-indigo-700",
+      buttonClassName: "bg-slate-600 hover:bg-slate-700",
       textColorClass: "text-gray-900",
       animationDelay: "",
     },
     {
-      name: "Intermediate",
-      price: "3000",
+      name: "Professional",
+      price: "1999",
       isPopular: true,
-      features: ["3 Businesses (Each Management System)", "Up to 500 Users", "Customizable Analytics", "24/7 Support"],
-      buttonText: "Get Started",
-      className: "bg-neutral-900 border-2 border-indigo-500 transform scale-105 text-white",
-      buttonClassName: "bg-indigo-500 hover:bg-indigo-600",
+      features: [
+        "All 2 Business Types (Gym + Library)",
+        "Up to 500 Members",
+        "Advanced Analytics & Charts",
+        "Revenue Tracking & Reports",
+        "Monthly Trend Analysis",
+        "WhatsApp Messaging Integration",
+        "Bulk Member Upload (Excel)",
+        "Overdue Account Alerts",
+        "Priority Email Support"
+      ],
+      buttonText: "Start Free Trial",
+      className: "bg-slate-800 border-2 border-slate-600 transform scale-105 text-white",
+      buttonClassName: "bg-slate-600 hover:bg-slate-700",
       textColorClass: "text-white",
       animationDelay: "animate__delay-1s",
     },
     {
-      name: "Pro",
-      price: "5000",
-      features: ["All Management Systems", "Multiple Businesses", "Full Customization (Website, Theme, Colors)", "Advanced Analytics", "Unlimited Users"],
-      buttonText: "Get Started",
+      name: "Enterprise",
+      price: "3999",
+      features: [
+        "All Business Types",
+        "Unlimited Members",
+        "Advanced Analytics Dashboard",
+        "Year-wise Data Analysis",
+        "Membership Distribution Reports",
+        "WhatsApp Bulk Messaging",
+        "Custom Payment Reminders",
+        "Data Export (CSV/Excel)",
+        "Dedicated Support Channel"
+      ],
+      buttonText: "Start Free Trial",
       className: "bg-white border border-gray-200",
-      buttonClassName: "bg-indigo-600 hover:bg-indigo-700",
+      buttonClassName: "bg-slate-600 hover:bg-slate-700",
       textColorClass: "text-gray-900",
       animationDelay: "animate__delay-2s",
     },
     {
       name: "Lifetime",
-      price: "50000",
-      features: ["One-Time Payment (Lifetime Access)", "All Features Unlocked", "Unlimited Businesses & Users", "Scalable for Future Growth", "No Recurring Fees"],
-      buttonText: "Contact Us",
-      className: "bg-yellow-500 border border-yellow-600 transform scale-105",
+      price: "29999",
+      features: [
+        "One-Time Payment (Lifetime Access)",
+        "All Features from Enterprise Plan",
+        "Unlimited Everything",
+        "Future Feature Updates",
+        "Priority Feature Requests",
+        "No Recurring Fees Ever",
+        "Best Value for Long-term"
+      ],
+      buttonText: "Buy Lifetime",
+      className: "bg-gradient-to-br from-yellow-400 to-orange-500 border-2 border-yellow-600 transform scale-105",
       buttonClassName: "bg-yellow-600 hover:bg-yellow-700",
       textColorClass: "text-white",
       animationDelay: "animate__delay-4s",
@@ -290,8 +341,29 @@ const Pricing: FC = () => {
             );
   
             if (verifyRes.data.success) {
-              alert("Payment Successful! Redirecting...");
-              navigate('/get-started');
+              // Update user data in localStorage
+              const userStr = localStorage.getItem("user");
+              let userData = null;
+              
+              if (userStr) {
+                try {
+                  userData = JSON.parse(userStr);
+                  userData.trialStatus = "MEMBER";
+                  userData.membershipType = membershipType;
+                  localStorage.setItem("user", JSON.stringify(userData));
+                } catch (e) {
+                  console.error("Error updating user data:", e);
+                }
+              }
+              
+              alert("Payment Successful! Your membership has been activated.");
+              
+              // Redirect to dashboard if user has business type, otherwise to get-started
+              if (userData && userData.businessType) {
+                navigate(`/dashboard/${userData.businessType.toLowerCase()}`);
+              } else {
+                navigate('/get-started');
+              }
             } else {
               alert("Payment verification failed.");
             }
@@ -312,6 +384,8 @@ const Pricing: FC = () => {
     }
   };
   
+  const isExpired = user?.trialStatus === "EXPIRED";
+
   return (
     <section id="pricing" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -322,13 +396,32 @@ const Pricing: FC = () => {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Choose the perfect plan tailored to your business growth
           </p>
+          <p className="text-sm text-slate-600 font-medium mt-2">
+            ✨ All plans include 7-day free trial - No credit card required
+          </p>
+          {isExpired && (
+            <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 max-w-2xl mx-auto">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-yellow-700">
+                    <strong>Your trial has expired.</strong> Please upgrade to continue using the platform.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
   
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {pricingPlans.map((plan, index) => (
             <div key={index} className={`rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow animate__animated animate__fadeInUp ${plan.className} ${plan.animationDelay} relative flex flex-col h-full`}>
               {plan.isPopular && (
-                <div className="absolute top-0 right-0 bg-indigo-500 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-sm font-semibold">
+                <div className="absolute top-0 right-0 bg-slate-600 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-sm font-semibold">
                   POPULAR
                 </div>
               )}

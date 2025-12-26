@@ -1,4 +1,4 @@
-export type BusinessType = 'LIBRARY' | 'GYM' | 'FLAT';
+export type BusinessType = 'LIBRARY' | 'GYM';
 
 export interface BusinessOption {
   id: BusinessType;
@@ -16,10 +16,5 @@ export const BUSINESS_OPTIONS: BusinessOption[] = [
     id: 'GYM',
     label: 'Gym Management',
     description: 'Manage your gym, members, equipment, and schedules'
-  },
-  {
-    id: 'FLAT',
-    label: 'Flat Management',
-    description: 'Manage your apartments, tenants, and maintenance'
   }
 ];

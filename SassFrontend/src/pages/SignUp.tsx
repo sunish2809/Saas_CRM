@@ -17,17 +17,21 @@ const SignUp: React.FC = () => {
     businessType: 'LIBRARY', // Default business type, will be updated from URL
   });
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const [businessTypeFromUrl, setBusinessTypeFromUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // Retrieve the business type from the URL query parameter
     const queryParams = new URLSearchParams(location.search);
     const business = queryParams.get('business');
     if (business) {
-      setFormData((prevData) => ({ ...prevData, businessType: business }));
+      const upperCaseBusiness = business.toUpperCase();
+      setBusinessTypeFromUrl(upperCaseBusiness);
+      setFormData((prevData) => ({ ...prevData, businessType: upperCaseBusiness }));
+    } else {
+      setBusinessTypeFromUrl(null);
     }
   }, [location.search]);
 
@@ -123,17 +127,29 @@ return (
             <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
               Business Type
             </label>
-            <select
-              id="businessType"
-              name="businessType"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value={formData.businessType}
-              onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-            >
-              <option value="LIBRARY">LIBRARY</option>
-              <option value="GYM">GYM</option>
-              <option value="FLAT">FLAT</option>
-            </select>
+            {businessTypeFromUrl ? (
+              // Fixed display when business type comes from URL
+              <input
+                id="businessType"
+                name="businessType"
+                type="text"
+                readOnly
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-700 cursor-not-allowed sm:text-sm"
+                value={formData.businessType}
+              />
+            ) : (
+              // Dropdown when no business type in URL
+              <select
+                id="businessType"
+                name="businessType"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.businessType}
+                onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
+              >
+                <option value="LIBRARY">LIBRARY</option>
+                <option value="GYM">GYM</option>
+              </select>
+            )}
           </div>
         </div>
 
