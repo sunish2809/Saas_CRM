@@ -1,9 +1,22 @@
 const gym = require("../../models/Gym");
-
 const DeletedGymMember = require("../../models/DeletedGymMemberSchema");
+const { checkMemberLimit } = require("../../utils/memberLimits");
 
 exports.addGymMember = async (req, res) => {
   try {
+    // Check member limit before adding
+    const owner = req.owner;
+    const currentMemberCount = await gym.countDocuments({ ownerId: owner._id });
+    const limitCheck = checkMemberLimit(currentMemberCount, owner.membershipType);
+    
+    if (!limitCheck.allowed) {
+      return res.status(403).json({
+        message: limitCheck.message,
+        limit: limitCheck.limit,
+        current: limitCheck.current,
+        upgradeRequired: true
+      });
+    }
     let {
       name,
       email,
@@ -131,16 +144,46 @@ exports.uploadGymMembers = async (req, res) => {
         .json({ message: "Request body must be an array of members" });
     }
 
+    // Check member limit before bulk upload
+    const owner = req.owner;
+    const currentMemberCount = await gym.countDocuments({ ownerId: owner._id });
+    const limitCheck = checkMemberLimit(currentMemberCount, owner.membershipType);
+    
+    // Check if adding all members would exceed limit
+    if (limitCheck.limit !== null && (currentMemberCount + members.length) > limitCheck.limit) {
+      const canAdd = limitCheck.limit - currentMemberCount;
+      return res.status(403).json({
+        message: `Cannot add ${members.length} members. Your ${owner.membershipType} plan allows up to ${limitCheck.limit} members. You currently have ${currentMemberCount} members and can add ${canAdd} more. Please upgrade to add more members.`,
+        limit: limitCheck.limit,
+        current: currentMemberCount,
+        requested: members.length,
+        canAdd: canAdd > 0 ? canAdd : 0,
+        upgradeRequired: true
+      });
+    }
+
     const results = { added: [], errors: [] };
 
     for (const member of members) {
       try {
+        // Check limit before each member addition
+        const currentCount = await gym.countDocuments({ ownerId: owner._id });
+        const limitCheck = checkMemberLimit(currentCount, owner.membershipType);
+        
+        if (!limitCheck.allowed) {
+          results.errors.push({ 
+            member, 
+            error: limitCheck.message 
+          });
+          continue;
+        }
+
         const {
           name,
           email,
-          phone, // ✅ Missing field added
+          phone,
           address,
-          aadharNumber, // ✅ Corrected field name (previously 'aadhar')
+          aadharNumber,
           mobile,
           emergencyContact,
           gender,
@@ -150,10 +193,16 @@ exports.uploadGymMembers = async (req, res) => {
           paymentHistory,
         } = member;
 
-        // Ensure all required fields are present
-        if (!phone || !aadharNumber) {
-          throw new Error("Phone and Aadhar Number are required.");
+        // Validate required fields
+        if (!name || !email || !phone || !aadharNumber || !memberNumber) {
+          throw new Error(`Missing required fields. Required: Name, Email, Phone, Aadhar Number, Member Number`);
         }
+
+        // Set defaults for optional fields
+        const finalGender = gender || 'Male';
+        const finalAddress = address || 'Not provided';
+        const finalEmergencyContact = emergencyContact || phone;
+        const finalMembershipType = membershipType || 'Basic';
 
         // Parse payment history if string
         let parsedPaymentHistory = [];
@@ -171,23 +220,37 @@ exports.uploadGymMembers = async (req, res) => {
           parsedPaymentHistory = paymentHistory;
         }
 
+        // Parse date of birth
+        let dateOfBirthObj;
+        if (dateOfBirth) {
+          if (typeof dateOfBirth === 'string' && dateOfBirth.includes('/')) {
+            const [day, month, year] = dateOfBirth.split('/');
+            dateOfBirthObj = new Date(`${year}-${month}-${day}`);
+          } else {
+            dateOfBirthObj = new Date(dateOfBirth);
+          }
+        } else {
+          dateOfBirthObj = new Date('1990-01-01');
+        }
+
         const newMember = new gym({
           ownerId: req.owner._id,
-          name,
-          email,
-          phone, // ✅ Now included
-          address,
-          aadharNumber, // ✅ Correct field name
-          mobile,
-          emergencyContact,
-          gender,
-          dateOfBirth: new Date(dateOfBirth),
-          membershipType,
-          memberNumber,
-          paymentHistory: parsedPaymentHistory.map((payment) => ({
-            amount: payment.amount,
-            paymentDate: new Date(payment.paymentDate),
-          })),
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim().replace(/\D/g, ''),
+          address: finalAddress.trim(),
+          aadharNumber: aadharNumber.trim().replace(/\D/g, ''),
+          emergencyContact: finalEmergencyContact.trim().replace(/\D/g, ''),
+          gender: finalGender.trim(),
+          dateOfBirth: dateOfBirthObj,
+          membershipType: finalMembershipType.trim(),
+          memberNumber: String(memberNumber).trim(),
+          paymentHistory: parsedPaymentHistory.length > 0 
+            ? parsedPaymentHistory.map((payment) => ({
+                amount: Number(payment.amount) || 0,
+                paymentDate: new Date(payment.paymentDate || new Date()),
+              }))
+            : [],
         });
 
 
@@ -283,8 +346,20 @@ exports.deleteGymMember = async (req, res) => {
 exports.getGymMember = async (req, res) => {
   const { memberNumber } = req.params;
 
+  if (!memberNumber || memberNumber === 'undefined') {
+    return res.status(400).json({ 
+      message: "Member number is required and cannot be undefined" 
+    });
+  }
+
   try {
-    const member = await gym.findOne({ memberNumber });
+    // Convert to number if it's a string
+    const memberNum = isNaN(memberNumber) ? memberNumber : Number(memberNumber);
+    
+    const member = await gym.findOne({ 
+      ownerId: req.owner._id,
+      memberNumber: memberNum 
+    });
 
     if (!member) {
       return res
@@ -294,25 +369,34 @@ exports.getGymMember = async (req, res) => {
 
     res.json(member);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching member", error });
+    console.error('Error fetching gym member:', error);
+    res.status(500).json({ 
+      message: "Error fetching member", 
+      error: error.message 
+    });
   }
 };
 
 // Get all gym members
 exports.getAllGymMembers = async (req, res) => {
   try {
+    // Filter by ownerId to ensure users only see their own members
     const members = await gym.find(
-      {},
-      { name: 1, memberNumber: 1, membershipType: 1, paymentHistory: 1, _id: 0 }
+      { ownerId: req.owner._id },
+      { name: 1, email: 1, memberNumber: 1, membershipType: 1, paymentHistory: 1, _id: 1 }
     );
 
     if (!members.length) {
-      return res.status(404).json({ message: "No members found" });
+      return res.status(200).json([]); // Return empty array instead of 404
     }
 
     res.json(members);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching members", error });
+    console.error('Error fetching gym members:', error);
+    res.status(500).json({ 
+      message: "Error fetching members", 
+      error: error.message 
+    });
   }
 };
 

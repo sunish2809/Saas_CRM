@@ -51,7 +51,8 @@ exports.verifyPayment = async (req, res) => {
     }
 
     // ✅ Find owner using token (from auth middleware)
-    const owner = await Owner.findById(req.user.userId);
+    // Use req.owner (set by authMiddleware) or fallback to req.user.userId
+    const owner = req.owner || await Owner.findById(req.user?.userId);
 
     if (!owner) {
       return res.status(404).json({ message: "Owner not found" });

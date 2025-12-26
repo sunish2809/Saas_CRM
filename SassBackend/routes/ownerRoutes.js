@@ -1,15 +1,16 @@
 const express = require('express');
-const { authMiddleware, checkBusinessAccess } = require( '../middleware/auth');
-const { updateOwner } = require('../controllers/owner/ownerController');
-const {getOwner} = require('../controllers/owner/ownerController')
+const { authMiddleware } = require( '../middleware/auth');
+const { updateOwner, getOwner, getMemberLimits, switchBusinessType, addBusinessType } = require('../controllers/owner/ownerController');
 
 const router = express.Router();
 
-// Apply middleware
+// Apply authentication middleware only (no business type restriction for owner routes)
 router.use(authMiddleware);
-router.use(checkBusinessAccess(['LIBRARY', 'GYM', 'FLAT'])); 
 
 router.put('/update-owner', updateOwner);
 router.get('/get-owner', getOwner);
+router.get('/member-limits', getMemberLimits);
+router.post('/switch-business-type', switchBusinessType);
+router.post('/add-business-type', addBusinessType);
 
 module.exports = router;

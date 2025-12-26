@@ -1,6 +1,3 @@
-
-
-
 const express = require("express");
 const { authMiddleware, checkBusinessAccess } = require("../middleware/auth");
 const {

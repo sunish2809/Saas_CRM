@@ -1,15 +1,3 @@
-// import React from 'react'
-
-// const DeletedGymMemberSchema = () => {
-//   return (
-//     <div>
-      
-//     </div>
-//   )
-// }
-
-// export default DeletedGymMemberSchema
-
 const mongoose = require('mongoose');
 
 const DeletedGymMemberSchema = new mongoose.Schema({

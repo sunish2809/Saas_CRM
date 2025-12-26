@@ -1,11 +1,3 @@
-// export type BusinessType = 'LIBRARY' | 'GYM' | 'FLAT';
-
-// export interface BusinessOption {
-//   id: BusinessType;
-//   label: string;
-//   description: string;
-// }
-
 module.exports =  BUSINESS_OPTIONS =[
   {
     id: 'LIBRARY',

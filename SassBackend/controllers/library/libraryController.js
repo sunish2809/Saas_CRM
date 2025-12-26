@@ -1,8 +1,22 @@
 const library = require("../../models/Library");
 const DeletedMember = require('../../models/DeletedMemberSchema');
+const { checkMemberLimit } = require("../../utils/memberLimits");
 
 exports.addLibraryMembers = async (req, res) => {
   try {
+    // Check member limit before adding
+    const owner = req.owner;
+    const currentMemberCount = await library.countDocuments({ ownerId: owner._id });
+    const limitCheck = checkMemberLimit(currentMemberCount, owner.membershipType);
+    
+    if (!limitCheck.allowed) {
+      return res.status(403).json({
+        message: limitCheck.message,
+        limit: limitCheck.limit,
+        current: limitCheck.current,
+        upgradeRequired: true
+      });
+    }
     let {
       name,
       email,
@@ -128,11 +142,27 @@ exports.uploadLibraryMembers = async (req, res) => {
   try {
     const members = req.body;
 
-
-
     if (!Array.isArray(members)) {
       return res.status(400).json({
         message: "Request body must be an array of members",
+      });
+    }
+
+    // Check member limit before bulk upload
+    const owner = req.owner;
+    const currentMemberCount = await library.countDocuments({ ownerId: owner._id });
+    const limitCheck = checkMemberLimit(currentMemberCount, owner.membershipType);
+    
+    // Check if adding all members would exceed limit
+    if (limitCheck.limit !== null && (currentMemberCount + members.length) > limitCheck.limit) {
+      const canAdd = limitCheck.limit - currentMemberCount;
+      return res.status(403).json({
+        message: `Cannot add ${members.length} members. Your ${owner.membershipType} plan allows up to ${limitCheck.limit} members. You currently have ${currentMemberCount} members and can add ${canAdd} more. Please upgrade to add more members.`,
+        limit: limitCheck.limit,
+        current: currentMemberCount,
+        requested: members.length,
+        canAdd: canAdd > 0 ? canAdd : 0,
+        upgradeRequired: true
       });
     }
 
@@ -143,6 +173,17 @@ exports.uploadLibraryMembers = async (req, res) => {
 
     for (const member of members) {
       try {
+        // Check limit before each member addition
+        const currentCount = await library.countDocuments({ ownerId: owner._id });
+        const limitCheck = checkMemberLimit(currentCount, owner.membershipType);
+        
+        if (!limitCheck.allowed) {
+          results.errors.push({ 
+            member, 
+            error: limitCheck.message 
+          });
+          continue;
+        }
         const {
           name,
           email,
@@ -156,6 +197,17 @@ exports.uploadLibraryMembers = async (req, res) => {
           membershipType,
           paymentHistory,
         } = member;
+
+        // Validate required fields
+        if (!name || !email || !phone || !aadharNumber || !seatNumber) {
+          throw new Error(`Missing required fields. Required: Name, Email, Phone, Aadhar Number, Seat Number`);
+        }
+
+        // Set defaults for optional fields
+        const finalGender = gender || 'Male';
+        const finalAddress = address || 'Not provided';
+        const finalEmergencyContact = emergencyContact || phone;
+        const finalMembershipType = membershipType || 'Basic';
 
         // Parse `paymentHistory` if it is a string
         let parsedPaymentHistory = [];
@@ -173,22 +225,37 @@ exports.uploadLibraryMembers = async (req, res) => {
           parsedPaymentHistory = paymentHistory;
         }
 
+        // Parse date of birth
+        let dateOfBirthObj;
+        if (dateOfBirth) {
+          if (typeof dateOfBirth === 'string' && dateOfBirth.includes('/')) {
+            const [day, month, year] = dateOfBirth.split('/');
+            dateOfBirthObj = new Date(`${year}-${month}-${day}`);
+          } else {
+            dateOfBirthObj = new Date(dateOfBirth);
+          }
+        } else {
+          dateOfBirthObj = new Date('1990-01-01');
+        }
+
         const newMember = new library({
           ownerId: req.owner._id,
-          name,
-          email,
-          phone,
-          address,
-          seatNumber,
-          aadharNumber,
-          emergencyContact,
-          gender,
-          dateOfBirth: new Date(dateOfBirth),
-          membershipType,
-          paymentHistory: parsedPaymentHistory.map((payment) => ({
-            amount: payment.amount,
-            paymentDate: new Date(payment.paymentDate),
-          })),
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim().replace(/\D/g, ''),
+          address: finalAddress.trim(),
+          seatNumber: String(seatNumber).trim(),
+          aadharNumber: aadharNumber.trim().replace(/\D/g, ''),
+          emergencyContact: finalEmergencyContact.trim().replace(/\D/g, ''),
+          gender: finalGender.trim(),
+          dateOfBirth: dateOfBirthObj,
+          membershipType: finalMembershipType.trim(),
+          paymentHistory: parsedPaymentHistory.length > 0 
+            ? parsedPaymentHistory.map((payment) => ({
+                amount: Number(payment.amount) || 0,
+                paymentDate: new Date(payment.paymentDate || new Date()),
+              }))
+            : [],
         });
 
         await newMember.save();

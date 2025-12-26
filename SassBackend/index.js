@@ -5,24 +5,18 @@ const ConnectDB = require('./config/db');
 const  authroutes = require( './routes/auth');
 const  libraryroutes = require( './routes/libraryRoutes');
 const  gymroutes = require('./routes/gymRoutes');
-const  flatroutes = require('./routes/flatRoutes');
 const  ownerRoutes =require('./routes/ownerRoutes');
 const messageRoutes = require('./routes/messageRoutes')
 const paymentRoutes = require("./routes/paymentRoutes");
-//const routes = require('./routes/auth')
+
 dotenv.config();
 const app = express();
 const allowedOrigins = [
   "https://www.managepro.net.in",
   "https://managepro.net.in",
   "http://localhost:5173",
-   // Allow both www and non-www versions
 ];
-// app.use(
-//     cors({
-//       origin: process.env.FRONTEND_URL,
-//     })
-// );
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -40,10 +34,16 @@ ConnectDB();
 app.use('/api/auth',authroutes);
 app.use('/api/library',libraryroutes);
 app.use('/api/gym',gymroutes);
-app.use('/api/flat',flatroutes);
 app.use('/api/owner',ownerRoutes);
 app.use('/api',messageRoutes);
 app.use("/api/payment", paymentRoutes);
+
+// Check email configuration on startup
+if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  console.warn('⚠️  WARNING: SMTP credentials (SMTP_USER, SMTP_PASS) are not set.');
+  console.warn('   Password reset functionality will not work until email is configured.');
+  console.warn('   Please add these to your .env file.');
+}
 
 const PORT = process.env.PORT||3000;
 app.listen(PORT,()=>{

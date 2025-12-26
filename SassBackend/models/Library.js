@@ -1,5 +1,3 @@
-
-
 const mongoose = require('mongoose');
 
 const librarySchema = new mongoose.Schema({
