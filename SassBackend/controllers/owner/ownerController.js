@@ -171,8 +171,31 @@ exports.switchBusinessType = async (req, res) => {
     owner.currentBusinessType = normalizedBusinessType;
     await owner.save();
 
+    // Generate new JWT token with updated business type
+    const jwt = require('jsonwebtoken');
+    const newToken = jwt.sign(
+      { 
+        userId: owner._id, 
+        businessType: normalizedBusinessType,
+        email: owner.email 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
     res.json({
       message: "Business type switched successfully",
+      token: newToken, // Return new token with updated businessType
+      user: {
+        id: owner._id,
+        email: owner.email,
+        name: owner.name,
+        businessType: normalizedBusinessType,
+        currentBusinessType: normalizedBusinessType,
+        allBusinessTypes: userBusinessTypes,
+        membershipType: owner.membershipType,
+        trialStatus: owner.trialStatus,
+      },
       currentBusinessType: normalizedBusinessType,
       allBusinessTypes: userBusinessTypes
     });

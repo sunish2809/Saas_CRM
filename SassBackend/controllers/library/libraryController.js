@@ -360,7 +360,11 @@ exports.deleteLibraryMembers = async (req, res) => {
   }
 
   try {
-    const member = await library.findOneAndDelete({ seatNumber });
+    // Filter by ownerId to ensure users can only delete their own members
+    const member = await library.findOneAndDelete({ 
+      seatNumber,
+      ownerId: req.owner._id 
+    });
 
     if (!member) {
       return res.status(404).json({ message: "Member not found" });
@@ -382,7 +386,11 @@ exports.getLibraryMembers = async (req, res) => {
     const { seatNumber } = req.params;
 
   try {
-    const member = await library.findOne({ seatNumber });
+    // Filter by ownerId to ensure users only see their own members
+    const member = await library.findOne({ 
+      seatNumber,
+      ownerId: req.owner._id 
+    });
 
     if (!member) {
       return res
@@ -398,15 +406,16 @@ exports.getLibraryMembers = async (req, res) => {
 
 exports.getAllLibraryMembers = async (req, res) => {
   try {
+    // Filter by ownerId to ensure users only see their own members
     const members = await library.find(
-      {},
+      { ownerId: req.owner._id },
       {
         name: 1,
         email: 1,
         seatNumber: 1,
         membershipType: 1,
         paymentHistory: 1,
-        phone:1,
+        phone: 1,
         _id: 0,
         createdAt: 1,
         updatedAt: 1,
@@ -414,7 +423,7 @@ exports.getAllLibraryMembers = async (req, res) => {
     );
 
     if (!members.length) {
-      return res.status(404).json({ message: "No members found" });
+      return res.status(200).json([]); // Return empty array instead of 404
     }
 
     res.json(members);

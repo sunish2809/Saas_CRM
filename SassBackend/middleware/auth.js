@@ -64,8 +64,21 @@ exports.checkBusinessAccess = (allowedBusinessTypes) => {
                 return res.status(401).json({ message: 'Authentication required' });
             }
 
-            // Get current business type from request (from token or query param)
-            const requestedBusinessType = req.query.businessType || req.body.businessType || req.user?.currentBusinessType || req.owner.currentBusinessType || req.owner.businessType;
+            // Infer business type from route path first (most reliable)
+            // Routes are like /api/gym/add-member or /api/library/add-member
+            let requestedBusinessType = null;
+            const path = req.path || req.originalUrl || '';
+            
+            if (path.includes('/gym/') || path.includes('/api/gym')) {
+                requestedBusinessType = 'GYM';
+            } else if (path.includes('/library/') || path.includes('/api/library')) {
+                requestedBusinessType = 'LIBRARY';
+            }
+            
+            // Fallback to query/body/token if not found in path
+            if (!requestedBusinessType) {
+                requestedBusinessType = req.query.businessType || req.body.businessType || req.user?.currentBusinessType || req.owner.currentBusinessType || req.owner.businessType;
+            }
             
             if (!requestedBusinessType) {
                 return res.status(400).json({ 
@@ -73,13 +86,16 @@ exports.checkBusinessAccess = (allowedBusinessTypes) => {
                 });
             }
 
+            // Normalize to uppercase
+            requestedBusinessType = requestedBusinessType.toUpperCase();
+
             // Get all business types user has access to
             const userBusinessTypes = req.owner.businessTypes && req.owner.businessTypes.length > 0 
                 ? req.owner.businessTypes 
                 : (req.owner.businessType ? [req.owner.businessType] : []);
 
             // Check if requested business type is in allowed types for this route
-            if (!allowedBusinessTypes.includes(requestedBusinessType.toUpperCase())) {
+            if (!allowedBusinessTypes.includes(requestedBusinessType)) {
                 return res.status(403).json({ 
                     message: `Access denied. ${requestedBusinessType} is not available for this route.` 
                 });
@@ -100,8 +116,14 @@ exports.checkBusinessAccess = (allowedBusinessTypes) => {
             }
 
             // Set the current business type in request for use in controllers
-            req.currentBusinessType = requestedBusinessType.toUpperCase();
-            req.user.currentBusinessType = requestedBusinessType.toUpperCase();
+            req.currentBusinessType = requestedBusinessType;
+            req.user.currentBusinessType = requestedBusinessType;
+            
+            // Update owner's currentBusinessType in database if it's different
+            if (req.owner.currentBusinessType !== requestedBusinessType) {
+                req.owner.currentBusinessType = requestedBusinessType;
+                req.owner.save().catch(err => console.error('Error updating currentBusinessType:', err));
+            }
 
             next();
         } catch (error) {
