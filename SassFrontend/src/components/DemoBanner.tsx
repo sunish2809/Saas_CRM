@@ -9,9 +9,24 @@ const DemoBanner: React.FC<DemoBannerProps> = ({ themeColor = 'orange' }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const isDemo = localStorage.getItem("isDemoAccount") === "true";
-    if (!isDemo) {
+    // Check if user is a demo account by email
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const demoEmails = ['demo.gym@example.com', 'demo.library@example.com'];
+        const isDemo = demoEmails.includes(user.email?.toLowerCase());
+        if (!isDemo) {
+          setIsVisible(false);
+          return;
+        }
+      } catch (e) {
+        setIsVisible(false);
+        return;
+      }
+    } else {
       setIsVisible(false);
+      return;
     }
   }, []);
 

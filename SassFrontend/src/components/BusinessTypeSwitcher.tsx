@@ -44,13 +44,22 @@ const BusinessTypeSwitcher: React.FC<BusinessTypeSwitcherProps> = ({
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update localStorage
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userData = JSON.parse(userStr);
-        userData.businessType = businessType;
-        userData.currentBusinessType = businessType;
-        localStorage.setItem('user', JSON.stringify(userData));
+      // Update token and user data from response
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+      
+      if (response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      } else {
+        // Fallback: Update localStorage manually if user data not in response
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const userData = JSON.parse(userStr);
+          userData.businessType = businessType.toUpperCase();
+          userData.currentBusinessType = businessType.toUpperCase();
+          localStorage.setItem('user', JSON.stringify(userData));
+        }
       }
 
       // Navigate to the new dashboard
@@ -61,7 +70,8 @@ const BusinessTypeSwitcher: React.FC<BusinessTypeSwitcherProps> = ({
       }
       
       setIsOpen(false);
-      window.location.reload(); // Reload to refresh all data
+      // Reload to refresh all data with new token
+      window.location.reload();
     } catch (error: any) {
       console.error('Error switching business type:', error);
       alert(error.response?.data?.message || 'Failed to switch business type');

@@ -99,7 +99,7 @@ const MemberProfile = () => {
           </div>
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-gray-900">{memberData.name}</h2>
-            <p className="text-gray-600 mt-1">ID: {memberData.seatNumber}</p>
+            <p className="text-gray-600 mt-1">Member ID: {memberData.memberNumber || 'N/A'}</p>
             <div className="flex flex-wrap items-center gap-3 mt-3">
               <span className={`px-3 py-1 rounded-full text-sm font-medium border ${
                 status === 'Active'

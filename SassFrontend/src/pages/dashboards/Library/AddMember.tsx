@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { Plus, Loader, Upload, Download, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import Toast from '../../../components/Toast';
 
 interface AddMemberFormState {
   name: string;
@@ -13,6 +14,9 @@ interface AddMemberFormState {
   address: string;
   aadharNumber: string;
   emergencyContact: string;
+  seatNumber: string;
+  paymentAmount: string;
+  paymentDate: string;
 }
 
 const AddMember = () => {
@@ -26,14 +30,14 @@ const AddMember = () => {
     address: '',
     aadharNumber: '',
     emergencyContact: '',
+    seatNumber: '',
+    paymentAmount: '',
+    paymentDate: '',
   });
 
   const [memberLimits, setMemberLimits] = useState({ current: 0, limit: 0, remaining: null, canAddMore: false, isUnlimited: false });
-  const [error, setError] = useState<{ message: string } | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
-  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -46,12 +50,28 @@ const AddMember = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+      
+      // Prepare payment history (required fields)
+      const paymentHistory = [{
+        amount: parseFloat(formData.paymentAmount) || 0,
+        paymentDate: formData.paymentDate || new Date().toISOString().split('T')[0]
+      }];
+      
+      const memberData = {
+        ...formData,
+        paymentHistory: paymentHistory
+      };
+      
+      // Remove paymentAmount and paymentDate from the data sent to backend
+      delete memberData.paymentAmount;
+      delete memberData.paymentDate;
+      
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/library/add-member`,
-        formData,
+        memberData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSuccess(true);
+      setToast({ message: 'Member added successfully!', type: 'success' });
       setFormData({
         name: '',
         email: '',
@@ -62,11 +82,16 @@ const AddMember = () => {
         address: '',
         aadharNumber: '',
         emergencyContact: '',
+        seatNumber: '',
+        paymentAmount: '',
+        paymentDate: '',
       });
-      setTimeout(() => setSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.response?.data || { message: 'Failed to add member' });
-      setTimeout(() => setError(null), 3000);
+      const errorMessage = err.response?.data?.message || 
+                          (err.response?.data?.fields ? 
+                            `Missing required fields: ${err.response.data.fields.join(', ')}` : 
+                            'Failed to add member. Please try again.');
+      setToast({ message: errorMessage, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -85,8 +110,6 @@ const AddMember = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadError('');
-    setUploadSuccess(false);
     setUploading(true);
 
     try {
@@ -190,24 +213,26 @@ const AddMember = () => {
           if (response.data.results) {
             const { added, errors } = response.data.results;
             if (errors.length > 0) {
-              setUploadError(
-                `Uploaded ${added.length} members successfully. ${errors.length} errors occurred. Check console for details.`
-              );
+              const errorMessages = errors.map((e: any) => e.message || e).join(', ');
+              setToast({ 
+                message: `Uploaded ${added.length} members successfully. ${errors.length} errors occurred: ${errorMessages}`, 
+                type: 'error' 
+              });
               console.error('Upload errors:', errors);
             } else {
-              setUploadSuccess(true);
+              setToast({ message: `Successfully uploaded ${added.length} members!`, type: 'success' });
               setTimeout(() => {
                 window.location.reload();
               }, 2000);
             }
           } else {
-            setUploadSuccess(true);
+            setToast({ message: 'Members uploaded successfully!', type: 'success' });
             setTimeout(() => {
               window.location.reload();
             }, 2000);
           }
         } catch (err: any) {
-          setUploadError(err.message || 'Error processing Excel file. Please check the format.');
+          setToast({ message: err.message || 'Error processing Excel file. Please check the format.', type: 'error' });
         } finally {
           setUploading(false);
           e.target.value = '';
@@ -215,14 +240,14 @@ const AddMember = () => {
       };
       reader.readAsArrayBuffer(file);
     } catch (err: any) {
-      setUploadError(err.message || 'Error reading file');
+      setToast({ message: err.message || 'Error reading file', type: 'error' });
       setUploading(false);
       e.target.value = '';
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl relative">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Add New Member</h1>
@@ -244,26 +269,6 @@ const AddMember = () => {
         </p>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg text-sm">
-          {error.message}
-        </div>
-      )}
-
-      {/* Upload Success Alert */}
-      {uploadSuccess && (
-        <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg text-sm">
-          Members uploaded successfully! Refreshing...
-        </div>
-      )}
-
-      {/* Upload Error Alert */}
-      {uploadError && (
-        <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg text-sm">
-          {uploadError}
-        </div>
-      )}
 
       {/* Bulk Upload Section */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
@@ -304,13 +309,6 @@ const AddMember = () => {
       </div>
 
       <div className="text-center text-gray-500 text-sm">OR</div>
-
-      {/* Success Message */}
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg text-sm">
-          Member added successfully!
-        </div>
-      )}
 
       {/* Form Card */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -359,22 +357,24 @@ const AddMember = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
                 <input
                   type="date"
                   name="dateOfBirth"
                   value={formData.dateOfBirth}
                   onChange={handleChange}
+                  required
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
+                  required
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
                 >
                   <option value="">Select Gender</option>
@@ -385,14 +385,28 @@ const AddMember = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Aadhar Number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Aadhar Number *</label>
                 <input
                   type="text"
                   name="aadharNumber"
                   value={formData.aadharNumber}
                   onChange={handleChange}
+                  required
                   placeholder="XXXX XXXX XXXX"
                   maxLength={12}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Seat Number *</label>
+                <input
+                  type="text"
+                  name="seatNumber"
+                  value={formData.seatNumber}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter seat number"
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
                 />
               </div>
@@ -404,11 +418,12 @@ const AddMember = () => {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Address Information</h2>
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
                 <textarea
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
+                  required
                   placeholder="Enter full address"
                   rows={3}
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors resize-none"
@@ -438,14 +453,48 @@ const AddMember = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact *</label>
                 <input
                   type="tel"
                   name="emergencyContact"
                   value={formData.emergencyContact}
                   onChange={handleChange}
+                  required
                   placeholder="+91 98765 43210"
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Information */}
+          <div className="border-t border-gray-200 pt-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h2>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Payment Amount *</label>
+                <input
+                  type="number"
+                  name="paymentAmount"
+                  value={formData.paymentAmount}
+                  onChange={handleChange}
+                  required
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Payment Date *</label>
+                <input
+                  type="date"
+                  name="paymentDate"
+                  value={formData.paymentDate}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100 transition-colors"
                 />
               </div>
             </div>
@@ -479,6 +528,16 @@ const AddMember = () => {
           </div>
         </form>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          themeColor="teal"
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

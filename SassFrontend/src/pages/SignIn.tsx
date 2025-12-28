@@ -61,6 +61,12 @@ function SignIn() {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       
+      // Clear demo account flag if not a demo account
+      const demoEmails = ['demo.gym@example.com', 'demo.library@example.com'];
+      if (!demoEmails.includes(user.email?.toLowerCase())) {
+        localStorage.removeItem("isDemoAccount");
+      }
+      
       // Check trial status
       if (user.trialStatus === "EXPIRED") {
         // Allow expired users to sign in but redirect to pricing to upgrade

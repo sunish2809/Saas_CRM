@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Loader, Upload, Download, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import Toast from '../../../components/Toast';
 
 const AddMember = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [uploadError, setUploadError] = useState('');
-  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -22,12 +21,12 @@ const AddMember = () => {
     emergencyContact: '',
     membershipType: 'Basic',
     amount: '',
+    memberNumber: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,18 +36,31 @@ const AddMember = () => {
     try {
       const token = localStorage.getItem('token');
       
+      // Prepare payment history
+      const paymentHistory = formData.amount ? [{
+        amount: parseFloat(formData.amount) || 0,
+        paymentDate: new Date().toISOString().split('T')[0]
+      }] : [];
+
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/gym/add-member`,
         {
           ...formData,
-          amount: parseFloat(formData.amount),
+          paymentHistory: paymentHistory,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      navigate('/dashboard/gym/members');
+      setToast({ message: 'Member added successfully!', type: 'success' });
+      setTimeout(() => {
+        navigate('/dashboard/gym/members');
+      }, 1500);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to add member. Please try again.');
+      const errorMessage = err.response?.data?.message || 
+                          (err.response?.data?.fields ? 
+                            `Missing required fields: ${err.response.data.fields.join(', ')}` : 
+                            'Failed to add member. Please try again.');
+      setToast({ message: errorMessage, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -70,8 +82,6 @@ const AddMember = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadError('');
-    setUploadSuccess(false);
     setUploading(true);
 
     try {
@@ -175,24 +185,26 @@ const AddMember = () => {
           if (response.data.results) {
             const { added, errors } = response.data.results;
             if (errors.length > 0) {
-              setUploadError(
-                `Uploaded ${added.length} members successfully. ${errors.length} errors occurred. Check console for details.`
-              );
+              const errorMessages = errors.map((e: any) => e.message || e).join(', ');
+              setToast({ 
+                message: `Uploaded ${added.length} members successfully. ${errors.length} errors occurred: ${errorMessages}`, 
+                type: 'error' 
+              });
               console.error('Upload errors:', errors);
             } else {
-              setUploadSuccess(true);
+              setToast({ message: `Successfully uploaded ${added.length} members!`, type: 'success' });
               setTimeout(() => {
                 navigate('/dashboard/gym/members');
               }, 2000);
             }
           } else {
-            setUploadSuccess(true);
+            setToast({ message: 'Members uploaded successfully!', type: 'success' });
             setTimeout(() => {
               navigate('/dashboard/gym/members');
             }, 2000);
           }
         } catch (err: any) {
-          setUploadError(err.message || 'Error processing Excel file. Please check the format.');
+          setToast({ message: err.message || 'Error processing Excel file. Please check the format.', type: 'error' });
         } finally {
           setUploading(false);
           e.target.value = '';
@@ -200,14 +212,14 @@ const AddMember = () => {
       };
       reader.readAsArrayBuffer(file);
     } catch (err: any) {
-      setUploadError(err.message || 'Error reading file');
+      setToast({ message: err.message || 'Error reading file', type: 'error' });
       setUploading(false);
       e.target.value = '';
     }
   };
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl relative">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button
@@ -221,27 +233,6 @@ const AddMember = () => {
           <p className="text-gray-600 mt-1">Register a new gym member</p>
         </div>
       </div>
-
-      {/* Error Alert */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {error}
-        </div>
-      )}
-
-      {/* Upload Success Alert */}
-      {uploadSuccess && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-          Members uploaded successfully! Redirecting...
-        </div>
-      )}
-
-      {/* Upload Error Alert */}
-      {uploadError && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {uploadError}
-        </div>
-      )}
 
       {/* Bulk Upload Section */}
       <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
@@ -338,8 +329,24 @@ const AddMember = () => {
             </div>
 
             <div>
+              <label htmlFor="memberNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                Member Number *
+              </label>
+              <input
+                type="text"
+                id="memberNumber"
+                name="memberNumber"
+                value={formData.memberNumber}
+                onChange={handleChange}
+                required
+                placeholder="Enter member number"
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100 transition-colors"
+              />
+            </div>
+
+            <div>
               <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-2">
-                Date of Birth
+                Date of Birth *
               </label>
               <input
                 type="date"
@@ -347,19 +354,21 @@ const AddMember = () => {
                 name="dateOfBirth"
                 value={formData.dateOfBirth}
                 onChange={handleChange}
+                required
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100 transition-colors"
               />
             </div>
 
             <div>
               <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
-                Gender
+                Gender *
               </label>
               <select
                 id="gender"
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
+                required
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100 transition-colors"
               >
                 {genders.map((g) => (
@@ -370,7 +379,7 @@ const AddMember = () => {
 
             <div>
               <label htmlFor="aadharNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                Aadhar Number
+                Aadhar Number *
               </label>
               <input
                 type="text"
@@ -378,6 +387,7 @@ const AddMember = () => {
                 name="aadharNumber"
                 value={formData.aadharNumber}
                 onChange={handleChange}
+                required
                 placeholder="1234 5678 9012"
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100 transition-colors"
               />
@@ -386,7 +396,7 @@ const AddMember = () => {
 
           <div className="mt-4">
             <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-              Address
+              Address *
             </label>
             <input
               type="text"
@@ -394,6 +404,7 @@ const AddMember = () => {
               name="address"
               value={formData.address}
               onChange={handleChange}
+              required
               placeholder="123 Street, City, State"
               className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100 transition-colors"
             />
@@ -401,7 +412,7 @@ const AddMember = () => {
 
           <div className="mt-4">
             <label htmlFor="emergencyContact" className="block text-sm font-medium text-gray-700 mb-2">
-              Emergency Contact
+              Emergency Contact *
             </label>
             <input
               type="text"
@@ -409,6 +420,7 @@ const AddMember = () => {
               name="emergencyContact"
               value={formData.emergencyContact}
               onChange={handleChange}
+              required
               placeholder="Contact name and number"
               className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100 transition-colors"
             />
@@ -475,6 +487,16 @@ const AddMember = () => {
           </button>
         </div>
       </form>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          themeColor="orange"
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

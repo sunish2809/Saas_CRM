@@ -65,7 +65,7 @@ const MemberList = () => {
     (member) =>
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.memberNumber.includes(searchTerm)
+      (member.memberNumber && String(member.memberNumber).toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const totalPages = Math.ceil(filteredMembers.length / itemsPerPage);
