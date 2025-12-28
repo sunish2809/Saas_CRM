@@ -3,6 +3,21 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import api from "../components/api";
 
+// Extend Window interface for Google Identity Services
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          prompt: (callback?: (notification: any) => void) => void;
+          renderButton: (element: HTMLElement, config: any) => void;
+        };
+      };
+    };
+  }
+}
+
 function SignIn() {
   const navigate = useNavigate();
   const { businessType: pathBusinessType } = useParams<{ businessType?: string }>();
@@ -26,6 +41,7 @@ function SignIn() {
   const [upgradeMessage, setUpgradeMessage] = useState("");
   const [availableBusinessTypes, setAvailableBusinessTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [ssoLoading, setSsoLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +92,104 @@ function SignIn() {
       setLoading(false);
     }
   };
+
+  // Initialize Google SSO on component mount
+  useEffect(() => {
+    if (!businessType) return;
+
+    const initializeGoogleSSO = async () => {
+      // Check if Google Client ID is configured
+      const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+      if (!googleClientId) {
+        console.warn("Google SSO is not configured. VITE_GOOGLE_CLIENT_ID is missing.");
+        return;
+      }
+      
+      try {
+        // Load Google Identity Services
+        if (typeof window === 'undefined' || !window.google) {
+          // Load Google Identity Services script
+          const script = document.createElement('script');
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.async = true;
+          script.defer = true;
+          document.head.appendChild(script);
+          
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = reject;
+            setTimeout(reject, 10000); // 10 second timeout
+          });
+        }
+
+        // Initialize Google OAuth
+        if (!window.google) {
+          throw new Error('Google Identity Services failed to load');
+        }
+
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          use_fedcm_for_prompt: false, // Disable FedCM to avoid origin issues
+          callback: async (response: any) => {
+            setSsoLoading(true);
+            try {
+              const ssoResponse = await api.post("/auth/google", {
+                idToken: response.credential,
+                businessType: businessType,
+              });
+
+              const { token, user } = ssoResponse.data;
+
+              // Store authentication details
+              localStorage.setItem("token", token);
+              localStorage.setItem("user", JSON.stringify(user));
+              
+              // Check trial status
+              if (user.trialStatus === "EXPIRED") {
+                alert("Your trial has expired! Please upgrade your plan to continue.");
+                navigate("/pricing");
+              } else {
+                navigate(`/dashboard/${businessType?.toLowerCase()}`);
+              }
+            } catch (err: any) {
+              console.error("SSO error:", err);
+              const errorResponse = err.response?.data;
+              
+              if (err.response?.status === 403 && errorResponse?.upgradeRequired) {
+                setUpgradeMessage(errorResponse.message || "Your plan doesn't allow access to this business type.");
+                setAvailableBusinessTypes(errorResponse.availableBusinessTypes || []);
+              } else {
+                setError(errorResponse?.message || "An error occurred during Google sign in");
+              }
+            } finally {
+              setSsoLoading(false);
+            }
+          },
+        });
+
+        // Render Google sign-in button
+        const buttonElement = document.getElementById('google-signin-button');
+        if (buttonElement && window.google) {
+          window.google.accounts.id.renderButton(
+            buttonElement,
+            { 
+              theme: 'outline', 
+              size: 'large', 
+              width: '100%',
+              text: 'signin_with',
+              shape: 'rectangular'
+            }
+          );
+        }
+      } catch (err: any) {
+        console.error("Google SSO initialization error:", err);
+        setError("Failed to initialize Google sign in. Please check your configuration.");
+      }
+    };
+
+    initializeGoogleSSO();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [businessType]);
 
   if (!businessType) {
     return null;
@@ -197,10 +311,10 @@ function SignIn() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || ssoLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               {loading ? (
@@ -215,6 +329,26 @@ function SignIn() {
                 "Sign in"
               )}
             </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <div id="google-signin-button" className="w-full"></div>
+            {ssoLoading && (
+              <div className="text-center text-sm text-gray-600">
+                <svg className="animate-spin h-5 w-5 text-gray-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p className="mt-2">Connecting to Google...</p>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-center">

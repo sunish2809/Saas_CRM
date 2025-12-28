@@ -75,11 +75,11 @@ const BusinessTypeSwitcher: React.FC<BusinessTypeSwitcherProps> = ({
                        membershipType === 'Lifetime';
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={loading}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+        className={`w-full flex items-center justify-between gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
           currentBusinessType === 'GYM' 
             ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' 
             : currentBusinessType === 'LIBRARY'
@@ -89,7 +89,7 @@ const BusinessTypeSwitcher: React.FC<BusinessTypeSwitcherProps> = ({
       >
         <span>{businessTypeLabels[currentBusinessType] || currentBusinessType}</span>
         <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -104,7 +104,7 @@ const BusinessTypeSwitcher: React.FC<BusinessTypeSwitcherProps> = ({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-20 border border-gray-200">
+          <div className="absolute left-0 right-0 mt-2 w-full bg-white rounded-lg shadow-lg z-20 border border-gray-200">
             <div className="py-1">
               {allBusinessTypes.map((type) => {
                 const isActive = type === currentBusinessType;

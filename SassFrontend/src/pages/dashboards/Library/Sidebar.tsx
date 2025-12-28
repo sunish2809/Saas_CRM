@@ -142,7 +142,7 @@ function Sidebar() {
             </div>
           </div>
           {userData && userData.allBusinessTypes && userData.allBusinessTypes.length > 1 && (
-            <div className="px-2">
+            <div className="w-full">
               <BusinessTypeSwitcher
                 currentBusinessType={userData.currentBusinessType || userData.businessType}
                 allBusinessTypes={userData.allBusinessTypes}
@@ -190,7 +190,16 @@ function Sidebar() {
                 <span>{item.title}</span>
               </button>
             ))}
-            <div className="border-t border-gray-200 pt-3 mt-3">
+            <div className="border-t border-gray-200 pt-3 mt-3 space-y-3">
+              {userData && userData.allBusinessTypes && userData.allBusinessTypes.length > 1 && (
+                <div className="px-2">
+                  <BusinessTypeSwitcher
+                    currentBusinessType={userData.currentBusinessType || userData.businessType}
+                    allBusinessTypes={userData.allBusinessTypes}
+                    membershipType={userData.membershipType || 'None'}
+                  />
+                </div>
+              )}
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"

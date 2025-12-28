@@ -17,6 +17,7 @@ const SignUp: React.FC = () => {
     businessType: 'LIBRARY', // Default business type, will be updated from URL
   });
   const [loading, setLoading] = useState(false);
+  const [ssoLoading, setSsoLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,7 +56,91 @@ const SignUp: React.FC = () => {
     }
   };
 
+  // Initialize Google SSO on component mount
+  useEffect(() => {
+    const initializeGoogleSSO = async () => {
+      // Check if Google Client ID is configured
+      const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+      if (!googleClientId) {
+        console.warn("Google SSO is not configured. VITE_GOOGLE_CLIENT_ID is missing.");
+        return;
+      }
+      
+      try {
+        // Load Google Identity Services
+        if (typeof window === 'undefined' || !(window as any).google) {
+          // Load Google Identity Services script
+          const script = document.createElement('script');
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.async = true;
+          script.defer = true;
+          document.head.appendChild(script);
+          
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = reject;
+            setTimeout(reject, 10000); // 10 second timeout
+          });
+        }
 
+        // Initialize Google OAuth
+        (window as any).google.accounts.id.initialize({
+          client_id: googleClientId,
+          use_fedcm_for_prompt: false, // Disable FedCM to avoid origin issues
+          callback: async (response: any) => {
+            setSsoLoading(true);
+            try {
+              const ssoResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/google`, {
+                idToken: response.credential,
+                businessType: formData.businessType,
+              });
+
+              const { token, user } = ssoResponse.data;
+
+              // Store authentication details
+              localStorage.setItem("token", token);
+              localStorage.setItem("user", JSON.stringify(user));
+              
+              // Check trial status
+              if (user.trialStatus === "EXPIRED") {
+                alert("Your trial has expired! Please upgrade your plan to continue.");
+                navigate("/pricing");
+              } else {
+                navigate(`/dashboard/${formData.businessType.toLowerCase()}`);
+              }
+            } catch (err: any) {
+              console.error("SSO error:", err);
+              const errorResponse = err.response?.data;
+              setError(errorResponse?.message || "An error occurred during Google sign up");
+            } finally {
+              setSsoLoading(false);
+            }
+          },
+        });
+
+        // Render Google sign-in button
+        const buttonElement = document.getElementById('google-signup-button');
+        if (buttonElement && (window as any).google) {
+          (window as any).google.accounts.id.renderButton(
+            buttonElement,
+            { 
+              theme: 'outline', 
+              size: 'large', 
+              width: '100%',
+              text: 'signup_with',
+              shape: 'rectangular'
+            }
+          );
+        }
+      } catch (err: any) {
+        console.error("Google SSO initialization error:", err);
+        setError("Failed to initialize Google sign in. Please check your configuration.");
+      }
+    };
+
+    initializeGoogleSSO();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.businessType]);
 
 return (
   <div className="w-full z-50 bg-cover bg-center bg-no-repeat min-h-screen flex items-center justify-center bg-[url('https://mydukaan.io/_next/static/media/banner-home-main.ebd707dd321420dd97b2e08e0aa39020.webp')]">
@@ -153,10 +238,10 @@ return (
           </div>
         </div>
 
-        <div>
+        <div className="space-y-3">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || ssoLoading}
             className="group/btn relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {loading ? (
@@ -187,6 +272,26 @@ return (
               'Sign Up'
             )}
           </button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div id="google-signup-button" className="w-full"></div>
+          {ssoLoading && (
+            <div className="text-center text-sm text-gray-600">
+              <svg className="animate-spin h-5 w-5 text-gray-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p className="mt-2">Connecting to Google...</p>
+            </div>
+          )}
         </div>
       </form>
     </div>
