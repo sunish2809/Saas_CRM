@@ -3,7 +3,12 @@ const mongoose = require("mongoose");
 const ownerSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, trim: true, lowercase: true, unique: true },
-    password: { type: String, required: true },
+    password: { 
+      type: String, 
+      required: function() {
+        return !this.googleId; // Password required only if not using SSO
+      }
+    },
     name: { type: String, required: true },
     // Legacy field - kept for backward compatibility, will be the first business type
     businessType: {
@@ -40,6 +45,17 @@ const ownerSchema = new mongoose.Schema(
     },
     resetPasswordExpires: {
       type: Date,
+      default: null,
+    },
+    // SSO fields
+    googleId: {
+      type: String,
+      sparse: true,
+      default: null,
+    },
+    ssoProvider: {
+      type: String,
+      enum: ["google", null],
       default: null,
     },
   },
