@@ -17,6 +17,7 @@ function LibraryDashboard() {
   const [trialStatus, setTrialStatus] = useState(null);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isDemoAccount, setIsDemoAccount] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -27,6 +28,11 @@ function LibraryDashboard() {
           return;
         }
 
+        // Check if this is a demo account
+        const demoFlag = localStorage.getItem("isDemoAccount");
+        const isDemo = demoFlag === "true";
+        setIsDemoAccount(isDemo);
+
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/owner/get-owner`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -34,7 +40,8 @@ function LibraryDashboard() {
         const user = response.data;
         setTrialStatus(user.trialStatus);
         setUserData(user);
-        if (user.trialStatus === "EXPIRED") {
+        // Don't redirect demo accounts to pricing even if expired
+        if (user.trialStatus === "EXPIRED" && !isDemo) {
           navigate("/pricing");
         }
       } catch (error) {
@@ -58,7 +65,8 @@ function LibraryDashboard() {
     );
   }
 
-  if (trialStatus === "EXPIRED") {
+  // Don't block demo accounts even if expired
+  if (trialStatus === "EXPIRED" && !isDemoAccount) {
     return null;
   }
 
@@ -70,8 +78,8 @@ function LibraryDashboard() {
         {/* Demo Banner */}
         <DemoBanner themeColor="teal" />
         
-        {/* Plan Info Banner */}
-        {userData && (
+        {/* Plan Info Banner - Hide for demo accounts */}
+        {userData && !isDemoAccount && (
           <PlanInfoBanner
             membershipType={userData.membershipType || "None"}
             allBusinessTypes={userData.allBusinessTypes || [userData.businessType]}
@@ -80,8 +88,8 @@ function LibraryDashboard() {
           />
         )}
         
-        {/* Trial Warning Banner */}
-        {trialStatus === "TRIAL" && (
+        {/* Trial Warning Banner - Hide for demo accounts */}
+        {trialStatus === "TRIAL" && !isDemoAccount && (
           <div className="bg-teal-50 border-b border-teal-200">
             <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-4 max-w-screen-2xl mx-auto">
               <div className="flex items-center gap-3">

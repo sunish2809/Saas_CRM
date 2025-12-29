@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../components/api";
 import { Play, Loader2 } from "lucide-react";
@@ -13,6 +13,11 @@ const DEMO_ACCOUNTS = {
     email: "demo.library@example.com",
     password: "Demo@1234",
     businessType: "LIBRARY"
+  },
+  HARDWARE: {
+    email: "demo.hardware@example.com",
+    password: "Demo@1234",
+    businessType: "HARDWARE"
   }
 };
 
@@ -70,6 +75,7 @@ function TryDemo() {
   const businessTypes = [
     { id: "GYM", name: "Gym Management", icon: "💪", description: "Manage gym members, memberships, and payments" },
     { id: "LIBRARY", name: "Library Management", icon: "📚", description: "Track books, members, and borrowing history" },
+    { id: "HARDWARE", name: "Product Management", icon: "🔧", description: "Manage products, inventory, bills, and customers" },
   ];
 
   return (
@@ -90,7 +96,7 @@ function TryDemo() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {businessTypes.map((type) => {
             const isSelected = selectedBusinessType === type.id;
             const isLoading = loading && isSelected;

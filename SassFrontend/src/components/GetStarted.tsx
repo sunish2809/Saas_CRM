@@ -87,7 +87,34 @@ const solutions = [
       "Direct Messaging: Send personalized WhatsApp messages or emails to individual members from their profiles.",
     ],
   },
-  // Add other solutions...
+  {
+    title: "HARDWARE",
+    icon: (
+      <svg
+        className="w-12 h-12"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+        />
+      </svg>
+    ),
+    description:
+      "Complete product and inventory management solution with stock tracking and billing.",
+    features: [
+      "Product Management: Add products with multiple quantity types (kg, liters, etc.) and track stock levels.",
+      "Bill Generation: Create bills with multiple products, quantities, and customer details.",
+      "Customer Management: Track customers by phone number, view payment status (Paid/Due), and payment history.",
+      "Stock Management: Add new products and update existing stock levels easily.",
+      "Payment Tracking: Calculate dues, update customer payments, and view complete payment history.",
+      "Inventory Control: Monitor stock levels and get alerts for low stock items.",
+    ],
+  },
 ];
 
 const GetStarted = () => {

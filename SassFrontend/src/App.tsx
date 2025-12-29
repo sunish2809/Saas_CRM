@@ -11,6 +11,7 @@ import GetStarted from "./components/GetStarted";
 import MemberProfile from "./pages/dashboards/Gym/MemberProfile";
 import LibraryDashboard from "./pages/dashboards/Library/LibraryDashboard";
 import MemberProfileLibrary from "./pages/dashboards/Library/MemberProfileLibrary";
+import HardwareDashboard from "./pages/dashboards/Hardware/HardwareDashboard";
 import Pricing from "./components/Pricing";
 import TryDemo from "./pages/TryDemo";
 
@@ -48,6 +49,14 @@ function App() {
         element={
           <ProtectedRoute requiredBusinessType="library">
             <LibraryDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/hardware/*"
+        element={
+          <ProtectedRoute requiredBusinessType="hardware">
+            <HardwareDashboard />
           </ProtectedRoute>
         }
       />

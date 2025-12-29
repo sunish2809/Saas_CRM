@@ -21,12 +21,14 @@ const BusinessTypeSwitcher: React.FC<BusinessTypeSwitcherProps> = ({
 
   const businessTypeLabels: { [key: string]: string } = {
     GYM: 'Gym',
-    LIBRARY: 'Library'
+    LIBRARY: 'Library',
+    HARDWARE: 'Product'
   };
 
   const businessTypeColors: { [key: string]: string } = {
     GYM: 'orange',
-    LIBRARY: 'teal'
+    LIBRARY: 'teal',
+    HARDWARE: 'blue'
   };
 
   const handleSwitch = async (businessType: string) => {

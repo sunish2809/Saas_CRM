@@ -61,14 +61,17 @@ function SignIn() {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       
-      // Clear demo account flag if not a demo account
-      const demoEmails = ['demo.gym@example.com', 'demo.library@example.com'];
-      if (!demoEmails.includes(user.email?.toLowerCase())) {
+      // Check if this is a demo account
+      const demoEmails = ['demo.gym@example.com', 'demo.library@example.com', 'demo.hardware@example.com'];
+      const isDemoAccount = demoEmails.includes(user.email?.toLowerCase());
+      if (isDemoAccount) {
+        localStorage.setItem("isDemoAccount", "true");
+      } else {
         localStorage.removeItem("isDemoAccount");
       }
       
-      // Check trial status
-      if (user.trialStatus === "EXPIRED") {
+      // Check trial status - don't redirect demo accounts to pricing
+      if (user.trialStatus === "EXPIRED" && !isDemoAccount) {
         // Allow expired users to sign in but redirect to pricing to upgrade
         alert("Your trial has expired! Please upgrade your plan to continue.");
         navigate("/pricing");
@@ -150,8 +153,17 @@ function SignIn() {
               localStorage.setItem("token", token);
               localStorage.setItem("user", JSON.stringify(user));
               
-              // Check trial status
-              if (user.trialStatus === "EXPIRED") {
+              // Check if this is a demo account
+              const demoEmails = ['demo.gym@example.com', 'demo.library@example.com', 'demo.hardware@example.com'];
+              const isDemoAccount = demoEmails.includes(user.email?.toLowerCase());
+              if (isDemoAccount) {
+                localStorage.setItem("isDemoAccount", "true");
+              } else {
+                localStorage.removeItem("isDemoAccount");
+              }
+              
+              // Check trial status - don't redirect demo accounts to pricing
+              if (user.trialStatus === "EXPIRED" && !isDemoAccount) {
                 alert("Your trial has expired! Please upgrade your plan to continue.");
                 navigate("/pricing");
               } else {
@@ -206,7 +218,9 @@ function SignIn() {
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8 space-y-6">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-sm text-gray-600">{businessType} Management System</p>
+          <p className="mt-2 text-sm text-gray-600">
+            {businessType === 'HARDWARE' ? 'Product Management System' : `${businessType} Management System`}
+          </p>
         </div>
 
         {error && (

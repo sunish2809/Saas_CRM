@@ -148,7 +148,7 @@ return (
       <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-900">Create your account</h2>
         <p className="mt-2 text-sm text-gray-600">
-          Sign up to get started with your {formData.businessType} management journey.
+          Sign up to get started with your {formData.businessType === 'HARDWARE' ? 'Product' : formData.businessType} management journey.
         </p>
       </div>
 
@@ -233,6 +233,7 @@ return (
               >
                 <option value="LIBRARY">LIBRARY</option>
                 <option value="GYM">GYM</option>
+                <option value="HARDWARE">HARDWARE</option>
               </select>
             )}
           </div>
