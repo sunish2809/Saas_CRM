@@ -7,7 +7,8 @@ const { canAddBusinessType, getAvailableBusinessTypes } = require('../../utils/b
 
 const BusinessType = {
   LIBRARY: 'LIBRARY',
-  GYM: 'GYM'
+  GYM: 'GYM',
+  HARDWARE: 'HARDWARE'
 };
 exports.signUp = async (req, res) => {
   try {

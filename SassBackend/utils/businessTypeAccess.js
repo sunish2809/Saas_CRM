@@ -5,17 +5,17 @@
 
 const BUSINESS_TYPE_LIMITS = {
   "Starter": 1, // Can access 1 business type
-  "Professional": 2, // Can access all 2 business types
-  "Enterprise": 2, // Can access all 2 business types
-  "Lifetime": 2, // Can access all 2 business types
+  "Professional": 3, // Can access all 3 business types
+  "Enterprise": 3, // Can access all 3 business types
+  "Lifetime": 3, // Can access all 3 business types
   // Legacy support
   "Basic": 1,
   "Intermediate": 2,
-  "Pro": 2,
+  "Pro": 3,
   "None": 1, // Trial users can access 1 business type
 };
 
-const ALL_BUSINESS_TYPES = ["GYM", "LIBRARY"];
+const ALL_BUSINESS_TYPES = ["GYM", "LIBRARY", "HARDWARE"];
 
 /**
  * Get the maximum number of business types allowed for a membership plan
@@ -56,7 +56,7 @@ function checkBusinessTypeAccess(userBusinessTypes, requestedBusinessType, membe
   // Check if user can add more business types
   const currentCount = userBusinessTypes ? userBusinessTypes.length : 0;
   
-  if (limit === 2) {
+  if (limit >= 3) {
     // Professional/Enterprise/Lifetime - can access all
     return {
       allowed: true,
@@ -86,7 +86,7 @@ function checkBusinessTypeAccess(userBusinessTypes, requestedBusinessType, membe
 function getAvailableBusinessTypes(userBusinessTypes, membershipType) {
   const limit = getBusinessTypeLimit(membershipType);
   
-  if (limit === 2) {
+  if (limit >= 3) {
     // Can access all business types
     return ALL_BUSINESS_TYPES;
   }
@@ -119,7 +119,7 @@ function canAddBusinessType(userBusinessTypes, newBusinessType, membershipType) 
   }
   
   // Check limit
-  if (limit === 2) {
+  if (limit >= 3) {
     return {
       allowed: true,
       message: `You can add ${newType}. Your plan allows access to all business types.`

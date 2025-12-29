@@ -5,7 +5,8 @@ const { canAddBusinessType } = require('../../utils/businessTypeAccess');
 
 const BusinessType = {
   LIBRARY: 'LIBRARY',
-  GYM: 'GYM'
+  GYM: 'GYM',
+  HARDWARE: 'HARDWARE'
 };
 
 // Initialize Google OAuth client

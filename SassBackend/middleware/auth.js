@@ -73,6 +73,8 @@ exports.checkBusinessAccess = (allowedBusinessTypes) => {
                 requestedBusinessType = 'GYM';
             } else if (path.includes('/library/') || path.includes('/api/library')) {
                 requestedBusinessType = 'LIBRARY';
+            } else if (path.includes('/hardware/') || path.includes('/api/hardware')) {
+                requestedBusinessType = 'HARDWARE';
             }
             
             // Fallback to query/body/token if not found in path

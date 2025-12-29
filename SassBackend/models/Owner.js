@@ -13,19 +13,19 @@ const ownerSchema = new mongoose.Schema(
     // Legacy field - kept for backward compatibility, will be the first business type
     businessType: {
       type: String,
-      enum: ["GYM", "LIBRARY"],
+      enum: ["GYM", "LIBRARY", "HARDWARE"],
       uppercase: true,
     },
     // New field - array of business types user has access to
     businessTypes: {
       type: [String],
-      enum: ["GYM", "LIBRARY"],
+      enum: ["GYM", "LIBRARY", "HARDWARE"],
       default: [],
     },
     // Current active business type (for dashboard routing)
     currentBusinessType: {
       type: String,
-      enum: ["GYM", "LIBRARY"],
+      enum: ["GYM", "LIBRARY", "HARDWARE"],
       uppercase: true,
     },
     trialStatus: {

@@ -5,6 +5,7 @@ const ConnectDB = require('./config/db');
 const  authroutes = require( './routes/auth');
 const  libraryroutes = require( './routes/libraryRoutes');
 const  gymroutes = require('./routes/gymRoutes');
+const  hardwareRoutes = require('./routes/hardwareRoutes');
 const  ownerRoutes =require('./routes/ownerRoutes');
 const messageRoutes = require('./routes/messageRoutes')
 const paymentRoutes = require("./routes/paymentRoutes");
@@ -34,6 +35,7 @@ ConnectDB();
 app.use('/api/auth',authroutes);
 app.use('/api/library',libraryroutes);
 app.use('/api/gym',gymroutes);
+app.use('/api/hardware',hardwareRoutes);
 app.use('/api/owner',ownerRoutes);
 app.use('/api',messageRoutes);
 app.use("/api/payment", paymentRoutes);
